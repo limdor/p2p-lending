@@ -1,3 +1,4 @@
+import argparse
 import pandas
 import os
 import re
@@ -61,7 +62,13 @@ def print_investment_data(investment_data):
         for date, file_path in sorted(files.items(), key=lambda item: item[0]):
             print(f'  {date}: {file_path}')
 
-def main():
+
+def main(show_past_investments):
+    if show_past_investments:
+        print("Report containing all records")
+    else:
+        print("Report containing only latest data")
+
     print("***********************************")
     print("**** Collecting available data ****")
     print("***********************************")
@@ -105,4 +112,9 @@ def main():
         print(overall_group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--past", action="store_true",
+                        help="Show past investments")
+    args = parser.parse_args()
+    show_past_investments = args.past
+    main(show_past_investments)
