@@ -14,7 +14,7 @@ PLATFORM_SPECIFIC_DATA = {
     'iuvo': {
         'filename_regexp': re.compile(r'MyInvestments-(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2}).xlsx'),
         'display_name': 'IUVO',
-        'column_mapping': {'Country':COUNTRY, 'Originator': LOAN_ORIGINATOR, 'Outstanding principal':OUTSTANDING_PRINCIPAL},
+        'column_mapping': {'Country': COUNTRY, 'Originator': LOAN_ORIGINATOR, 'Outstanding principal': OUTSTANDING_PRINCIPAL},
         'originators_rename': {'iCredit Poland': 'iCredit', 'iCredit Romania': 'iCredit'},
         'header': 3,
         'skipfooter': 3,
@@ -23,12 +23,13 @@ PLATFORM_SPECIFIC_DATA = {
         'filename_regexp': re.compile(r'(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})-current-investments.xlsx'),
         'display_name': 'Mintos',
         # TODO: There might be money in 'Pending Payments' column even if the investment is not finished
-        'column_mapping': {'Country':COUNTRY, 'Loan Originator': LOAN_ORIGINATOR, 'Lending Company': LOAN_ORIGINATOR, 'Outstanding Principal':OUTSTANDING_PRINCIPAL},
+        'column_mapping': {'Country': COUNTRY, 'Loan Originator': LOAN_ORIGINATOR, 'Lending Company': LOAN_ORIGINATOR, 'Outstanding Principal': OUTSTANDING_PRINCIPAL},
         'originators_rename': None,
         'header': 0,
         'skipfooter': 0,
     },
 }
+
 
 def parse_investments(date, current_investments, column_mapping):
     current_investments = current_investments.rename(columns=column_mapping)
@@ -39,6 +40,7 @@ def parse_investments(date, current_investments, column_mapping):
     group_by_country = current_investments.groupby([COUNTRY]).sum()
     group_by_originator = current_investments.groupby([LOAN_ORIGINATOR]).sum()
     return group_by_country, group_by_originator
+
 
 def collect_investment_data():
     data_files = {}
@@ -54,6 +56,7 @@ def collect_investment_data():
                     platform_files[report_date] = file_path
         data_files[investment_platform] = platform_files
     return data_files
+
 
 def print_investment_data(investment_data):
     for investment_platform, files in investment_data.items():
@@ -110,6 +113,7 @@ def main(show_past_investments):
         print(f"Overall Investment on {date}: {total_invested_by_originator:.2f}€")
         overall_group_by_originator['Percentage'] = overall_group_by_originator[OUTSTANDING_PRINCIPAL] / total_invested_by_originator
         print(overall_group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
