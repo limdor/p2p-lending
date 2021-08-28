@@ -11,5 +11,6 @@ py_binary(
     deps = [
         requirement("pandas"),
         requirement("xlrd"),
+        requirement("openpyxl"),
     ],
 )

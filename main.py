@@ -1,3 +1,4 @@
+import argparse
 import pandas
 import os
 import re
@@ -13,7 +14,7 @@ PLATFORM_SPECIFIC_DATA = {
     'iuvo': {
         'filename_regexp': re.compile(r'MyInvestments-(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2}).xlsx'),
         'display_name': 'IUVO',
-        'column_mapping': {'Country':COUNTRY, 'Originator': LOAN_ORIGINATOR, 'Outstanding principal':OUTSTANDING_PRINCIPAL},
+        'column_mapping': {'Country': COUNTRY, 'Originator': LOAN_ORIGINATOR, 'Outstanding principal': OUTSTANDING_PRINCIPAL},
         'originators_rename': {'iCredit Poland': 'iCredit', 'iCredit Romania': 'iCredit'},
         'header': 3,
         'skipfooter': 3,
@@ -22,22 +23,24 @@ PLATFORM_SPECIFIC_DATA = {
         'filename_regexp': re.compile(r'(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})-current-investments.xlsx'),
         'display_name': 'Mintos',
         # TODO: There might be money in 'Pending Payments' column even if the investment is not finished
-        'column_mapping': {'Country':COUNTRY, 'Loan Originator': LOAN_ORIGINATOR, 'Lending Company': LOAN_ORIGINATOR, 'Outstanding Principal':OUTSTANDING_PRINCIPAL},
+        'column_mapping': {'Country': COUNTRY, 'Loan Originator': LOAN_ORIGINATOR, 'Lending Company': LOAN_ORIGINATOR, 'Outstanding Principal': OUTSTANDING_PRINCIPAL},
         'originators_rename': None,
         'header': 0,
         'skipfooter': 0,
     },
 }
 
+
 def parse_investments(date, current_investments, column_mapping):
     current_investments = current_investments.rename(columns=column_mapping)
 
     current_investments = current_investments[RELEVANT_COLUMNS]
     sum_outstanding_principal = current_investments[OUTSTANDING_PRINCIPAL].sum()
-    print(f"Investment on {date}: {sum_outstanding_principal}")
+    print(f"Investment on {date}: {len(current_investments.index)} with a total amount of {sum_outstanding_principal:.2f}€")
     group_by_country = current_investments.groupby([COUNTRY]).sum()
     group_by_originator = current_investments.groupby([LOAN_ORIGINATOR]).sum()
     return group_by_country, group_by_originator
+
 
 def collect_investment_data():
     data_files = {}
@@ -54,6 +57,7 @@ def collect_investment_data():
         data_files[investment_platform] = platform_files
     return data_files
 
+
 def print_investment_data(investment_data):
     for investment_platform, files in investment_data.items():
         print(f"Investment platform: {PLATFORM_SPECIFIC_DATA[investment_platform]['display_name']}")
@@ -61,7 +65,13 @@ def print_investment_data(investment_data):
         for date, file_path in sorted(files.items(), key=lambda item: item[0]):
             print(f'  {date}: {file_path}')
 
-def main():
+
+def main(show_past_investments):
+    if show_past_investments:
+        print("Report containing all records")
+    else:
+        print("Report containing only latest data")
+
     print("***********************************")
     print("**** Collecting available data ****")
     print("***********************************")
@@ -93,16 +103,22 @@ def main():
     for date, investment_data in investments_by_country_by_date.items():
         overall_group_by_country = pandas.concat(investment_data).groupby([COUNTRY]).sum()
         total_invested_by_country = overall_group_by_country[OUTSTANDING_PRINCIPAL].sum()
-        print(f"Overall Investment on {date}: {total_invested_by_country}")
+        print(f"Overall Investment on {date}: {total_invested_by_country:.2f}€")
         overall_group_by_country['Percentage'] = overall_group_by_country[OUTSTANDING_PRINCIPAL] / total_invested_by_country
         print(overall_group_by_country.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
 
     for date, investment_data in investments_by_originator_by_date.items():
         overall_group_by_originator = pandas.concat(investment_data).groupby([LOAN_ORIGINATOR]).sum()
         total_invested_by_originator = overall_group_by_originator[OUTSTANDING_PRINCIPAL].sum()
-        print(f"Overall Investment on {date}: {total_invested_by_originator}")
+        print(f"Overall Investment on {date}: {total_invested_by_originator:.2f}€")
         overall_group_by_originator['Percentage'] = overall_group_by_originator[OUTSTANDING_PRINCIPAL] / total_invested_by_originator
         print(overall_group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
 
+
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--past", action="store_true",
+                        help="Show past investments")
+    args = parser.parse_args()
+    show_past_investments = args.past
+    main(show_past_investments)
