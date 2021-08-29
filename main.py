@@ -3,6 +3,7 @@ import pandas
 import os
 import re
 import datetime
+from p2pplatform import P2PPlatform
 from collections import defaultdict
 
 COUNTRY = 'Country'
@@ -11,23 +12,22 @@ OUTSTANDING_PRINCIPAL = 'Outstanding principal'
 RELEVANT_COLUMNS = [COUNTRY, LOAN_ORIGINATOR, OUTSTANDING_PRINCIPAL]
 DATA_DIRECTORY = os.path.join('.', 'data')
 PLATFORM_SPECIFIC_DATA = {
-    'iuvo': {
-        'filename_regexp': re.compile(r'MyInvestments-(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2}).xlsx'),
-        'display_name': 'IUVO',
-        'column_mapping': {'Country': COUNTRY, 'Originator': LOAN_ORIGINATOR, 'Outstanding principal': OUTSTANDING_PRINCIPAL},
-        'originators_rename': {'iCredit Poland': 'iCredit', 'iCredit Romania': 'iCredit'},
-        'header': 3,
-        'skipfooter': 3,
-    },
-    'mintos': {
-        'filename_regexp': re.compile(r'(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})-current-investments.xlsx'),
-        'display_name': 'Mintos',
+    'iuvo': P2PPlatform(
+        filename_regexp=re.compile(r'MyInvestments-(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2}).xlsx'),
+        display_name='IUVO',
+        column_mapping={'Country': COUNTRY, 'Originator': LOAN_ORIGINATOR, 'Outstanding principal': OUTSTANDING_PRINCIPAL},
+        originators_rename={'iCredit Poland': 'iCredit', 'iCredit Romania': 'iCredit'},
+        header=3,
+        skipfooter=3),
+    'mintos': P2PPlatform(
+        filename_regexp=re.compile(r'(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})-current-investments.xlsx'),
+        display_name='Mintos',
         # TODO: There might be money in 'Pending Payments' column even if the investment is not finished
-        'column_mapping': {'Country': COUNTRY, 'Loan Originator': LOAN_ORIGINATOR, 'Lending Company': LOAN_ORIGINATOR, 'Outstanding Principal': OUTSTANDING_PRINCIPAL},
-        'originators_rename': None,
-        'header': 0,
-        'skipfooter': 0,
-    },
+        column_mapping={'Country': COUNTRY, 'Loan Originator': LOAN_ORIGINATOR,
+                        'Lending Company': LOAN_ORIGINATOR, 'Outstanding Principal': OUTSTANDING_PRINCIPAL},
+        originators_rename=None,
+        header=0,
+        skipfooter=0),
 }
 
 
@@ -49,7 +49,7 @@ def collect_investment_data():
         platform_files = {}
         for root, _, files in os.walk(os.path.join(DATA_DIRECTORY, investment_platform)):
             for investment_snapshot in files:
-                match = PLATFORM_SPECIFIC_DATA[investment_platform]['filename_regexp'].search(investment_snapshot)
+                match = PLATFORM_SPECIFIC_DATA[investment_platform].filename_regexp.search(investment_snapshot)
                 if match:
                     report_date = datetime.date.fromisoformat(f"{match.group('year')}-{match.group('month')}-{match.group('day')}")
                     file_path = os.path.join(root, investment_snapshot)
@@ -60,7 +60,7 @@ def collect_investment_data():
 
 def print_investment_data(investment_data):
     for investment_platform, files in investment_data.items():
-        print(f"Investment platform: {PLATFORM_SPECIFIC_DATA[investment_platform]['display_name']}")
+        print(f"Investment platform: {PLATFORM_SPECIFIC_DATA[investment_platform].display_name}")
         print(f'Available files:')
         for date, file_path in sorted(files.items(), key=lambda item: item[0]):
             print(f'  {date}: {file_path}')
@@ -82,16 +82,17 @@ def main(show_past_investments):
     investments_by_originator_by_date = defaultdict(list)
     for investment_platform, files in investment_files.items():
         print("**************************")
-        print(f"**** {PLATFORM_SPECIFIC_DATA[investment_platform]['display_name']} Investments ****")
+        print(f"**** {PLATFORM_SPECIFIC_DATA[investment_platform].display_name} Investments ****")
         print("**************************")
         for date, file_path in sorted(files.items(), key=lambda item: item[0]):
-            investments = pandas.read_excel(file_path, header=PLATFORM_SPECIFIC_DATA[investment_platform]['header'], skipfooter=PLATFORM_SPECIFIC_DATA[investment_platform]['skipfooter'])
-            group_by_country, group_by_originator = parse_investments(date, investments, PLATFORM_SPECIFIC_DATA[investment_platform]['column_mapping'])
+            investments = pandas.read_excel(
+                file_path, header=PLATFORM_SPECIFIC_DATA[investment_platform].header, skipfooter=PLATFORM_SPECIFIC_DATA[investment_platform].skipfooter)
+            group_by_country, group_by_originator = parse_investments(date, investments, PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping)
             print(f'Investments by country:')
             print(group_by_country.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
             print(f'Investments by loan originator:')
             print(group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
-            originators_rename = PLATFORM_SPECIFIC_DATA[investment_platform]['originators_rename']
+            originators_rename = PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename
             if originators_rename:
                 group_by_originator = group_by_originator.rename(index=originators_rename)
             investments_by_country_by_date[date].append(group_by_country)

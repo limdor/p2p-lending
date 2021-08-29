@@ -3,7 +3,10 @@ load("@rules_python//python:defs.bzl", "py_binary")
 
 py_binary(
     name = "main",
-    srcs = ["main.py"],
+    srcs = [
+        "main.py",
+        "p2pplatform.py",
+    ],
     data = [
         "//data/iuvo",
         "//data/mintos",
