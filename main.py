@@ -42,19 +42,23 @@ def parse_investments(date, current_investments, column_mapping):
     return group_by_country, group_by_originator
 
 
-def collect_investment_data():
+def read_marketplace_files(data_directory, marketplace_name):
+    marketplace_files = {}
+    for root, _, files in os.walk(os.path.join(data_directory, marketplace_name)):
+        for investment_snapshot in files:
+            match = PLATFORM_SPECIFIC_DATA[marketplace_name].filename_regexp.search(investment_snapshot)
+            if match:
+                report_date = datetime.date.fromisoformat(f"{match.group('year')}-{match.group('month')}-{match.group('day')}")
+                file_path = os.path.join(root, investment_snapshot)
+                marketplace_files[report_date] = file_path
+    return marketplace_files
+
+
+def collect_investment_data(data_directory):
     data_files = {}
-    investment_platforms = [entry.name for entry in os.scandir(DATA_DIRECTORY) if entry.is_dir()]
+    investment_platforms = [entry.name for entry in os.scandir(data_directory) if entry.is_dir()]
     for investment_platform in investment_platforms:
-        platform_files = {}
-        for root, _, files in os.walk(os.path.join(DATA_DIRECTORY, investment_platform)):
-            for investment_snapshot in files:
-                match = PLATFORM_SPECIFIC_DATA[investment_platform].filename_regexp.search(investment_snapshot)
-                if match:
-                    report_date = datetime.date.fromisoformat(f"{match.group('year')}-{match.group('month')}-{match.group('day')}")
-                    file_path = os.path.join(root, investment_snapshot)
-                    platform_files[report_date] = file_path
-        data_files[investment_platform] = platform_files
+        data_files[investment_platform] = read_marketplace_files(data_directory, investment_platform)
     return data_files
 
 
@@ -75,7 +79,7 @@ def main(show_past_investments):
     print("***********************************")
     print("**** Collecting available data ****")
     print("***********************************")
-    investment_files = collect_investment_data()
+    investment_files = collect_investment_data(DATA_DIRECTORY)
     print_investment_data(investment_files)
 
     investments_by_country_by_date = defaultdict(list)
