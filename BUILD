@@ -5,11 +5,22 @@ py_binary(
     name = "main",
     srcs = [
         "main.py",
-        "marketplace.py",
     ],
     data = [
         "//data/iuvo",
         "//data/mintos",
+    ],
+    deps = [
+        ":p2p",
+    ]
+)
+
+py_library(
+    name = "p2p",
+    srcs = [
+        "__init__.py",
+        "marketplace.py",
+        "p2p.py",
     ],
     deps = [
         requirement("pandas"),
