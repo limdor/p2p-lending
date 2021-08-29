@@ -113,16 +113,37 @@ def report(show_past_investments):
     print("*****************************")
     print("**** Overall Investments ****")
     print("*****************************")
+    print(f'The portfolio consists of at least 100 different loan parts: TODO')  # {len(investment_data.index)}')
     for date, investment_data in investments_by_country_by_date.items():
         overall_group_by_country = pandas.concat(investment_data).groupby([COUNTRY]).sum()
         total_invested_by_country = overall_group_by_country[OUTSTANDING_PRINCIPAL].sum()
         print(f"Overall Investment on {date}: {total_invested_by_country:.2f}€")
         overall_group_by_country['Percentage'] = overall_group_by_country[OUTSTANDING_PRINCIPAL] / total_invested_by_country
-        print(overall_group_by_country.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
+
+        countries_sorted_by_principal = overall_group_by_country.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False)
+        print(countries_sorted_by_principal)
+
+        sum_on_top_3_countries = countries_sorted_by_principal[OUTSTANDING_PRINCIPAL][0:3].sum()
+        percentage_top_3_countries = (sum_on_top_3_countries / total_invested_by_country) * 100
+        print(f'No more than 50% of loans are issued in 3 (or less) countries: {percentage_top_3_countries:.2f}%')
+
+        top_country = countries_sorted_by_principal[OUTSTANDING_PRINCIPAL][0]
+        percentage_top_country = (top_country / total_invested_by_country) * 100
+        print(f'No more than 33% of loans are issued in any single country: {percentage_top_country:.2f}%')
 
     for date, investment_data in investments_by_originator_by_date.items():
         overall_group_by_originator = pandas.concat(investment_data).groupby([LOAN_ORIGINATOR]).sum()
         total_invested_by_originator = overall_group_by_originator[OUTSTANDING_PRINCIPAL].sum()
         print(f"Overall Investment on {date}: {total_invested_by_originator:.2f}€")
         overall_group_by_originator['Percentage'] = overall_group_by_originator[OUTSTANDING_PRINCIPAL] / total_invested_by_originator
-        print(overall_group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
+
+        originators_sorted_by_principal = overall_group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False)
+        print(originators_sorted_by_principal)
+
+        sum_on_top_5_originators = originators_sorted_by_principal[OUTSTANDING_PRINCIPAL][0:5].sum()
+        percentage_top_5_originators = (sum_on_top_5_originators / total_invested_by_originator) * 100
+        print(f'No more than 50% of loans are issued by 5 (or less) lending companies: {percentage_top_5_originators:.2f}%')
+
+        top_originator = originators_sorted_by_principal[OUTSTANDING_PRINCIPAL][0]
+        percentage_top_originator = (top_originator / total_invested_by_originator) * 100
+        print(f'No more than 20% of loans are issued by any single lending company: {percentage_top_originator:.2f}%')
