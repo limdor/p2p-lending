@@ -5,7 +5,7 @@ py_binary(
     name = "main",
     srcs = [
         "main.py",
-        "p2pplatform.py",
+        "marketplace.py",
     ],
     data = [
         "//data/iuvo",

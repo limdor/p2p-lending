@@ -3,7 +3,7 @@ import pandas
 import os
 import re
 import datetime
-from p2pplatform import P2PPlatform
+from marketplace import Marketplace
 from collections import defaultdict
 
 COUNTRY = 'Country'
@@ -12,14 +12,14 @@ OUTSTANDING_PRINCIPAL = 'Outstanding principal'
 RELEVANT_COLUMNS = [COUNTRY, LOAN_ORIGINATOR, OUTSTANDING_PRINCIPAL]
 DATA_DIRECTORY = os.path.join('.', 'data')
 PLATFORM_SPECIFIC_DATA = {
-    'iuvo': P2PPlatform(
+    'iuvo': Marketplace(
         filename_regexp=re.compile(r'MyInvestments-(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2}).xlsx'),
         display_name='IUVO',
         column_mapping={'Country': COUNTRY, 'Originator': LOAN_ORIGINATOR, 'Outstanding principal': OUTSTANDING_PRINCIPAL},
         originators_rename={'iCredit Poland': 'iCredit', 'iCredit Romania': 'iCredit'},
         header=3,
         skipfooter=3),
-    'mintos': P2PPlatform(
+    'mintos': Marketplace(
         filename_regexp=re.compile(r'(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})-current-investments.xlsx'),
         display_name='Mintos',
         # TODO: There might be money in 'Pending Payments' column even if the investment is not finished
