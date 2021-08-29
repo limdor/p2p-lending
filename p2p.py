@@ -41,6 +41,14 @@ def parse_investments(date, current_investments, column_mapping):
     return group_by_country, group_by_originator
 
 
+def get_latest_report_date(marketplace_files):
+    newest_date = datetime.date.min
+    for report_date in marketplace_files.keys():
+        if(report_date > newest_date):
+            newest_date = report_date
+    return newest_date
+
+
 def read_marketplace_files(data_directory, marketplace_name):
     marketplace_files = {}
     for root, _, files in os.walk(os.path.join(data_directory, marketplace_name)):
@@ -48,8 +56,7 @@ def read_marketplace_files(data_directory, marketplace_name):
             match = PLATFORM_SPECIFIC_DATA[marketplace_name].filename_regexp.search(investment_snapshot)
             if match:
                 report_date = datetime.date.fromisoformat(f"{match.group('year')}-{match.group('month')}-{match.group('day')}")
-                file_path = os.path.join(root, investment_snapshot)
-                marketplace_files[report_date] = file_path
+                marketplace_files[report_date] = os.path.join(root, investment_snapshot)
     return marketplace_files
 
 
@@ -64,7 +71,6 @@ def collect_investment_data(data_directory):
 def print_investment_data(investment_data):
     for investment_platform, files in investment_data.items():
         print(f"Investment platform: {PLATFORM_SPECIFIC_DATA[investment_platform].display_name}")
-        print(f'Available files:')
         for date, file_path in sorted(files.items(), key=lambda item: item[0]):
             print(f'  {date}: {file_path}')
 
@@ -87,19 +93,22 @@ def report(show_past_investments):
         print("**************************")
         print(f"**** {PLATFORM_SPECIFIC_DATA[investment_platform].display_name} Investments ****")
         print("**************************")
+        newest_date = get_latest_report_date(files)
+        print(f"Newest report date: {newest_date}")
         for date, file_path in sorted(files.items(), key=lambda item: item[0]):
-            investments = pandas.read_excel(
-                file_path, header=PLATFORM_SPECIFIC_DATA[investment_platform].header, skipfooter=PLATFORM_SPECIFIC_DATA[investment_platform].skipfooter)
-            group_by_country, group_by_originator = parse_investments(date, investments, PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping)
-            print(f'Investments by country:')
-            print(group_by_country.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
-            print(f'Investments by loan originator:')
-            print(group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
-            originators_rename = PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename
-            if originators_rename:
-                group_by_originator = group_by_originator.rename(index=originators_rename)
-            investments_by_country_by_date[date].append(group_by_country)
-            investments_by_originator_by_date[date].append(group_by_originator)
+            if show_past_investments or date == newest_date:
+                investments = pandas.read_excel(
+                    file_path, header=PLATFORM_SPECIFIC_DATA[investment_platform].header, skipfooter=PLATFORM_SPECIFIC_DATA[investment_platform].skipfooter)
+                group_by_country, group_by_originator = parse_investments(date, investments, PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping)
+                print(f'Investments by country:')
+                print(group_by_country.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
+                print(f'Investments by loan originator:')
+                print(group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
+                originators_rename = PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename
+                if originators_rename:
+                    group_by_originator = group_by_originator.rename(index=originators_rename)
+                investments_by_country_by_date[date].append(group_by_country)
+                investments_by_originator_by_date[date].append(group_by_originator)
 
     print("*****************************")
     print("**** Overall Investments ****")
