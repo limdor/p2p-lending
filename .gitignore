@@ -1,2 +1,8 @@
 # Bazel
 /bazel-*
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Investment files
+data/**/*.xlsx
