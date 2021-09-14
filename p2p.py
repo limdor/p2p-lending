@@ -65,7 +65,6 @@ def read_marketplace_files(data_directory, marketplace_name):
 def collect_investment_data(data_directory):
     data_files = {}
     investment_platforms = [entry.name for entry in os.scandir(data_directory) if entry.is_dir()]
-    print(investment_platforms)
     for investment_platform in investment_platforms:
         data_files[investment_platform] = read_marketplace_files(data_directory, investment_platform)
     return data_files
