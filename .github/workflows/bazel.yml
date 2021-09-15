@@ -1,0 +1,19 @@
+name: Bazel build and test
+on:
+  pull_request:
+    branches:
+      - master
+jobs:
+  bazel:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Setup bazel
+      uses: jwlawson/actions-setup-bazel@v1
+      with:
+        bazel-version: '4.2.1'
+        
+    - name: Checkout
+      uses: actions/checkout@v1
+
+    - name: Bazel build
+      run: bazel build ...
