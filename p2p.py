@@ -90,7 +90,6 @@ def get_dataframe_from_excel(file_path,date,investment_platform):
     if PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename:
         df.rename(index=PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename)
     df[INVESTMENT_PLATFORM], df[FILE_DATE] = investment_platform, date
-
     return df
 
 
@@ -101,7 +100,22 @@ def print_investment_data(investment_data):
             print(f'  {date}: {file_path}')
 
 
+def filter_investment_files_by_date(investment_data, dates:list = []):
+    filtered_files = {}
+    if dates[0].lower() == 'newest' or dates[0].lower() == 'latest':
+        for investment_platform, files in investment_data.items():
+            newest_date = get_latest_report_date(files)
+            filtered_files[investment_platform] = dict(filter(lambda file: file[0] == newest_date, files.items()))
+    elif dates[0].lower() == 'all':
+        filtered_files = investment_data.copy()
+    else: 
+        for investment_platform, files in investment_data.items():
+            filtered_files[investment_platform] = dict(filter(lambda file: file[0] in dates, files.items()))
+    return filtered_files
+
+
 def report(show_past_investments):
+
     if show_past_investments:
         print("Report containing all records")
     else:
@@ -110,7 +124,11 @@ def report(show_past_investments):
     print("***********************************")
     print("**** Collecting available data ****")
     print("***********************************")
-    investment_files = collect_investment_data(DATA_DIRECTORY)
+    all_investment_files = collect_investment_data(DATA_DIRECTORY)
+    if show_past_investments:
+        investment_files = filter_investment_files_by_date(all_investment_files,dates=['ALL'])
+    else:
+        investment_files = filter_investment_files_by_date(all_investment_files,dates=['NEWEST'])
     print_investment_data(investment_files)
 
 
