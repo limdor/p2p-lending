@@ -88,7 +88,8 @@ def get_dataframe_from_excel(file_path,date,investment_platform):
     ).rename(
         columns=PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping)
     if PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename:
-        df.rename(index=PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename)
+        df[LOAN_ORIGINATOR].replace(
+            PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename, inplace=True )
     df[INVESTMENT_PLATFORM], df[FILE_DATE] = investment_platform, date
     return df
 
