@@ -79,7 +79,7 @@ def aggregate_investment_data(investment_files):
     return df_investiments
 
 
-def get_dataframe_from_excel(file_path,date,investment_platform):
+def get_dataframe_from_excel(file_path, date, investment_platform):
     df = pandas.read_excel(
         file_path, 
         header=PLATFORM_SPECIFIC_DATA[investment_platform].header, 
