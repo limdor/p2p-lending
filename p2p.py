@@ -103,7 +103,7 @@ def print_investment_data(investment_data):
 
 def filter_investment_files_by_date(investment_data, dates:list = []):
     filtered_files = {}
-    if dates[0].lower() == 'newest' or dates[0].lower() == 'latest':
+    if dates[0].lower() in ('newest', 'latest'):
         for investment_platform, files in investment_data.items():
             newest_date = get_latest_report_date(files)
             filtered_files[investment_platform] = dict(filter(lambda file: file[0] == newest_date, files.items()))
