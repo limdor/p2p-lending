@@ -8,6 +8,8 @@ from collections import defaultdict
 COUNTRY = 'Country'
 LOAN_ORIGINATOR = 'Loan originator'
 OUTSTANDING_PRINCIPAL = 'Outstanding principal'
+INVESTMENT_PLATFORM = 'Investment platform'
+FILE_DATE = 'Date'
 RELEVANT_COLUMNS = [COUNTRY, LOAN_ORIGINATOR, OUTSTANDING_PRINCIPAL]
 DATA_DIRECTORY = os.path.join('.', 'data')
 PLATFORM_SPECIFIC_DATA = {
@@ -68,6 +70,30 @@ def collect_investment_data(data_directory):
     return data_files
 
 
+def aggregate_investment_data(investment_files):
+    list_dataframes = list()
+    for investment_platform, files in investment_files.items():
+        for date, file_path in sorted(files.items(), key=lambda item: item[0]):
+            list_dataframes.append( get_dataframe_from_excel(file_path,date,investment_platform) )
+    df_investiments = pandas.concat( list_dataframes )
+    return df_investiments
+
+
+def get_dataframe_from_excel(file_path, date, investment_platform):
+    df = pandas.read_excel(
+        file_path, 
+        header=PLATFORM_SPECIFIC_DATA[investment_platform].header, 
+        skipfooter=PLATFORM_SPECIFIC_DATA[investment_platform].skipfooter,
+        usecols= lambda column : column in PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping.keys()
+    ).rename(
+        columns=PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping)
+    if PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename:
+        df[LOAN_ORIGINATOR].replace(
+            PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename, inplace=True )
+    df[INVESTMENT_PLATFORM], df[FILE_DATE] = investment_platform, date
+    return df
+
+
 def print_investment_data(investment_data):
     for investment_platform, files in investment_data.items():
         print(f"Investment platform: {PLATFORM_SPECIFIC_DATA[investment_platform].display_name}")
@@ -75,7 +101,22 @@ def print_investment_data(investment_data):
             print(f'  {date}: {file_path}')
 
 
+def filter_investment_files_by_date(investment_data, dates:list = []):
+    filtered_files = {}
+    if dates[0].lower() in ('newest', 'latest'):
+        for investment_platform, files in investment_data.items():
+            newest_date = get_latest_report_date(files)
+            filtered_files[investment_platform] = dict(filter(lambda file: file[0] == newest_date, files.items()))
+    elif dates[0].lower() == 'all':
+        filtered_files = investment_data.copy()
+    else: 
+        for investment_platform, files in investment_data.items():
+            filtered_files[investment_platform] = dict(filter(lambda file: file[0] in dates, files.items()))
+    return filtered_files
+
+
 def report(show_past_investments):
+
     if show_past_investments:
         print("Report containing all records")
     else:
@@ -84,66 +125,110 @@ def report(show_past_investments):
     print("***********************************")
     print("**** Collecting available data ****")
     print("***********************************")
-    investment_files = collect_investment_data(DATA_DIRECTORY)
+    all_investment_files = collect_investment_data(DATA_DIRECTORY)
+    if not show_past_investments:
+        investment_files = filter_investment_files_by_date(all_investment_files,dates=['NEWEST'])
+    else:
+        investment_files = all_investment_files.copy()
     print_investment_data(investment_files)
 
-    investments_by_country_by_date = defaultdict(list)
-    investments_by_originator_by_date = defaultdict(list)
+
+    print("***********************************")
+    print("**** Aggregate available data ****")
+    print("***********************************")
+    df_investiments = aggregate_investment_data(investment_files)
+    print('TODO: function to summarise information')
+
+
+    print("*******************************")
+    print("**** Plataform Investments ***")
+    print("*******************************")
     for investment_platform, files in investment_files.items():
-        print("**************************")
-        print(f"**** {PLATFORM_SPECIFIC_DATA[investment_platform].display_name} Investments ****")
-        print("**************************")
+        print("|")
+        print(f" --- Platform : {PLATFORM_SPECIFIC_DATA[investment_platform].display_name} ---")
         newest_date = get_latest_report_date(files)
-        print(f"Newest report date: {newest_date}")
-        for date, file_path in sorted(files.items(), key=lambda item: item[0]):
+        for date in sorted(files.keys()):
             if show_past_investments or date == newest_date:
-                investments = pandas.read_excel(
-                    file_path, header=PLATFORM_SPECIFIC_DATA[investment_platform].header, skipfooter=PLATFORM_SPECIFIC_DATA[investment_platform].skipfooter)
-                group_by_country, group_by_originator = parse_investments(date, investments, PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping)
+                df_group_by_date_platform = df_investiments[ 
+                    (df_investiments[FILE_DATE] == date) &
+                    (df_investiments[INVESTMENT_PLATFORM] == investment_platform) ]
                 print(f'Investments by country:')
-                print(group_by_country.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
+                df_group_by_country = df_group_by_date_platform.groupby([COUNTRY]).sum()
+                print(df_group_by_country.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
                 print(f'Investments by loan originator:')
-                print(group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
-                originators_rename = PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename
-                if originators_rename:
-                    group_by_originator = group_by_originator.rename(index=originators_rename)
-                investments_by_country_by_date[date].append(group_by_country)
-                investments_by_originator_by_date[date].append(group_by_originator)
+                df_group_by_originator = df_group_by_date_platform.groupby([LOAN_ORIGINATOR]).sum()
+                print(df_group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
+
 
     print("*****************************")
     print("**** Overall Investments ****")
     print("*****************************")
-    print(f'The portfolio consists of at least 100 different loan parts: TODO')  # {len(investment_data.index)}')
-    for date, investment_data in investments_by_country_by_date.items():
-        overall_group_by_country = pandas.concat(investment_data).groupby([COUNTRY]).sum()
-        total_invested_by_country = overall_group_by_country[OUTSTANDING_PRINCIPAL].sum()
-        print(f"Overall Investment on {date}: {total_invested_by_country:.2f}€")
-        overall_group_by_country['Percentage'] = overall_group_by_country[OUTSTANDING_PRINCIPAL] / total_invested_by_country
+    overall_report = defaultdict(datetime.datetime)
+    for date in sorted(set([ date for data_file in investment_files.values() for date in data_file ])):
+        print(f"Overall Investments on {date}")
+        # Overall statistics
+        overall_group_by_date = df_investiments[ df_investiments[FILE_DATE] == date ]
+        total_invested_by_date = overall_group_by_date[OUTSTANDING_PRINCIPAL].sum()
+        total_invested_parts = len(overall_group_by_date.index)
+        print(f"|- Overall Investment: {total_invested_by_date:.2f}€")
 
-        countries_sorted_by_principal = overall_group_by_country.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False)
-        print(countries_sorted_by_principal)
+        # Statistics by Country
+        print("|- Investment by Country")
+        overall_group_by_country = overall_group_by_date.groupby(COUNTRY).sum()
+        overall_group_by_country = overall_group_by_country.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False)
+        overall_group_by_country['Percentage'] = overall_group_by_country[OUTSTANDING_PRINCIPAL] / total_invested_by_date
+        print(overall_group_by_country)
 
-        sum_on_top_3_countries = countries_sorted_by_principal[OUTSTANDING_PRINCIPAL][0:3].sum()
-        percentage_top_3_countries = (sum_on_top_3_countries / total_invested_by_country) * 100
-        print(f'No more than 50% of loans are issued in 3 (or less) countries: {percentage_top_3_countries:.2f}%')
+        # Statistics by Loan Originator
+        print("|- Investment by Country")
+        overall_group_by_originator = overall_group_by_date.groupby(LOAN_ORIGINATOR).sum()
+        overall_group_by_originator = overall_group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False)
+        overall_group_by_originator['Percentage'] = overall_group_by_originator[OUTSTANDING_PRINCIPAL] / total_invested_by_date
+        print(overall_group_by_originator)
 
-        top_country = countries_sorted_by_principal[OUTSTANDING_PRINCIPAL][0]
-        percentage_top_country = (top_country / total_invested_by_country) * 100
-        print(f'No more than 33% of loans are issued in any single country: {percentage_top_country:.2f}%')
+        # It will be used in the diversification
+        overall_report[date] = {
+            'Data' : overall_group_by_date,
+            'DataByCountry' : overall_group_by_country,
+            'DataByLoanOriginator' : overall_group_by_originator,
+            'TotalInvestment' :  total_invested_by_date,
+            'NumberLoanParts' : total_invested_parts
+        }
 
-    for date, investment_data in investments_by_originator_by_date.items():
-        overall_group_by_originator = pandas.concat(investment_data).groupby([LOAN_ORIGINATOR]).sum()
-        total_invested_by_originator = overall_group_by_originator[OUTSTANDING_PRINCIPAL].sum()
-        print(f"Overall Investment on {date}: {total_invested_by_originator:.2f}€")
-        overall_group_by_originator['Percentage'] = overall_group_by_originator[OUTSTANDING_PRINCIPAL] / total_invested_by_originator
 
-        originators_sorted_by_principal = overall_group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False)
-        print(originators_sorted_by_principal)
+    print("*********************************")
+    print("**** Diversification reports ****")
+    print("*********************************")
+    for date, overall_data in overall_report.items():
+        print(f"Investments diversification on {date}")
 
-        sum_on_top_5_originators = originators_sorted_by_principal[OUTSTANDING_PRINCIPAL][0:5].sum()
-        percentage_top_5_originators = (sum_on_top_5_originators / total_invested_by_originator) * 100
-        print(f'No more than 50% of loans are issued by 5 (or less) lending companies: {percentage_top_5_originators:.2f}%')
+        # Overall statistics
+        total_invested_parts = overall_data['TotalInvestment']
+        print(f"|- Diversification Investment: {total_invested_parts:.2f}€")
 
-        top_originator = originators_sorted_by_principal[OUTSTANDING_PRINCIPAL][0]
-        percentage_top_originator = (top_originator / total_invested_by_originator) * 100
-        print(f'No more than 20% of loans are issued by any single lending company: {percentage_top_originator:.2f}%')
+        total_loan_parts = overall_data['NumberLoanParts']
+        print(f'|- The portfolio consists of at least 100 different loan parts: {total_loan_parts:d}')
+
+        # Statistics by Country
+        print(f"|- Statistics by Country:")
+        overall_group_by_country = overall_data['DataByCountry']
+
+        sum_on_top_3_countries = overall_group_by_country[OUTSTANDING_PRINCIPAL][0:3].sum()
+        percentage_top_3_countries = (sum_on_top_3_countries / total_invested_by_date) * 100
+        print(f'   |- No more than 50% of loans are issued in 3 (or less) countries: {percentage_top_3_countries:.2f}%')
+
+        top_country = overall_group_by_country[OUTSTANDING_PRINCIPAL][0]
+        percentage_top_country = (top_country / total_invested_by_date) * 100
+        print(f'   |- No more than 33% of loans are issued in any single country: {percentage_top_country:.2f}%')
+
+        # Statistics by Loan Originator
+        print(f"|- Statistics by Originator:")
+        overall_group_by_originator = overall_data['DataByLoanOriginator']
+
+        sum_on_top_5_originators = overall_group_by_originator[OUTSTANDING_PRINCIPAL][0:5].sum()
+        percentage_top_5_originators = (sum_on_top_5_originators / total_invested_by_date) * 100
+        print(f'   |- No more than 50% of loans are issued by 5 (or less) lending companies: {percentage_top_5_originators:.2f}%')
+
+        top_originator = overall_group_by_originator[OUTSTANDING_PRINCIPAL][0]
+        percentage_top_originator = (top_originator / total_invested_by_date) * 100
+        print(f'   |- No more than 20% of loans are issued by any single lending company: {percentage_top_originator:.2f}%')
