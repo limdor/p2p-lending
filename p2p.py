@@ -84,7 +84,7 @@ def get_dataframe_from_excel(file_path, date, investment_platform):
         file_path, 
         header=PLATFORM_SPECIFIC_DATA[investment_platform].header, 
         skipfooter=PLATFORM_SPECIFIC_DATA[investment_platform].skipfooter,
-        usecols= lambda column : True if column in PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping.keys() else False
+        usecols= lambda column : column in PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping.keys()
     ).rename(
         columns=PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping)
     if PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename:
