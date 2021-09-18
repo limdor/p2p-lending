@@ -21,6 +21,7 @@ py_library(
         "__init__.py",
         "marketplace.py",
         "p2p.py",
+        "logger.py"
     ],
     deps = [
         requirement("pandas"),
