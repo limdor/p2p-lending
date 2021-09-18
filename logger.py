@@ -1,16 +1,21 @@
 import time
+import sys
 import getpass
 import logging
 
-
-date = time.strftime("%Y_%m_%d_%H")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 user = getpass.getuser()
 formatter = logging.Formatter(f"[%(asctime)s] %(levelname)s - {user} - %(message)s",datefmt="%m-%d %H:%M:%S")
 
-logger = logging.getLogger("p2p-leading")
-logger.setLevel(logging.DEBUG)
 
-fh = logging.FileHandler(f"log")
-fh.setLevel(logging.DEBUG)
-fh.setFormatter(formatter)
-logger.addHandler(fh)
+# System output logger (required to see the outputs when executing with Bazel) 
+sys_handler = logging.StreamHandler(sys.stdout)
+sys_handler.setLevel(logging.INFO)
+logger.addHandler(sys_handler)
+
+# File logger
+file_handler = logging.FileHandler(f"log")
+file_handler.setLevel(logging.DEBUG)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
