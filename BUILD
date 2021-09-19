@@ -1,4 +1,4 @@
-load("@pip//:requirements.bzl", "requirement")
+load("@my_deps//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_binary")
 
 py_binary(
@@ -28,4 +28,5 @@ py_library(
         requirement("xlrd"),
         requirement("openpyxl"),
     ],
+    visibility = ["//test:__pkg__"],
 )
