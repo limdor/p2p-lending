@@ -102,17 +102,13 @@ def print_investment_data(investment_data):
             logger.info(f'  {date}: {file_path}')
 
 
-def filter_investment_files_by_date(investment_data, dates:list = []):
+def filter_investment_files_by_newest_date(investment_data):
     filtered_files = {}
-    if dates[0].lower() in ('newest', 'latest'):
-        for investment_platform, files in investment_data.items():
-            newest_date = get_latest_report_date(files)
-            filtered_files[investment_platform] = dict(filter(lambda file: file[0] == newest_date, files.items()))
-    elif dates[0].lower() == 'all':
-        filtered_files = investment_data.copy()
-    else: 
-        for investment_platform, files in investment_data.items():
-            filtered_files[investment_platform] = dict(filter(lambda file: file[0] in dates, files.items()))
+    for investment_platform, files in investment_data.items():
+        newest_date = get_latest_report_date(files)
+        filtered_files[investment_platform] = {
+            key: value for (key, value) in files.items() if key == newest_date
+            }
     return filtered_files
 
 
@@ -128,7 +124,7 @@ def report(show_past_investments):
     logger.info("***********************************")
     all_investment_files = collect_investment_data(DATA_DIRECTORY)
     if not show_past_investments:
-        investment_files = filter_investment_files_by_date(all_investment_files,dates=['NEWEST'])
+        investment_files = filter_investment_files_by_newest_date(all_investment_files)
     else:
         investment_files = all_investment_files.copy()
     print_investment_data(investment_files)

@@ -2,7 +2,7 @@
 import sys
 import datetime
 import pytest
-from p2p import get_latest_report_date
+from p2p import get_latest_report_date, filter_investment_files_by_newest_date
 
 def test_get_latest_report_date():
     input_data = {
@@ -15,5 +15,29 @@ def test_get_latest_report_date():
     }
     assert datetime.date.fromisoformat("2021-12-01") == get_latest_report_date(input_data)
 
+
+def test_filter_investment_files_by_newest_date():
+    input_data = {
+        'platform_A' : {
+            datetime.date.fromisoformat("2021-11-01") : "path1.xls",
+            datetime.date.fromisoformat("2021-12-01") : "path2.xls",
+        },
+        'platform_B' : {
+            datetime.date.fromisoformat("2021-11-01") : "path1.xls",
+            datetime.date.fromisoformat("2021-12-01") : "path2.xls",
+            datetime.date.fromisoformat("2022-01-01") : "path3.xls",
+        },
+    }
+    output_data = {
+        'platform_A' : {
+            datetime.date.fromisoformat("2021-12-01") : "path2.xls",
+        },
+        'platform_B' : {
+            datetime.date.fromisoformat("2022-01-01") : "path3.xls",
+        },
+    }
+    assert output_data == filter_investment_files_by_newest_date(input_data)
+
+
 if __name__ == "__main__":
-    sys.exit(pytest.main([__file__]))
+    sys.exit(pytest.main(["-rA",__file__]))
