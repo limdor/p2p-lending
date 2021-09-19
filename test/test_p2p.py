@@ -40,4 +40,4 @@ def test_filter_investment_files_by_newest_date():
 
 
 if __name__ == "__main__":
-    sys.exit(pytest.main([__file__]))
+    sys.exit(pytest.main(["-rA",__file__]))
