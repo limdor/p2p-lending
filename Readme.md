@@ -25,3 +25,11 @@ For a full list of parameters you can use `--help`:
 ```bash
 bazel run //:main -- --help
 ```
+
+## Running the tests
+
+To run the test you just need to run the following command:
+
+```bash
+bazel test //...
+```
