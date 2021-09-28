@@ -9,7 +9,7 @@ py_binary(
     data = [
         "//data/iuvo",
         "//data/mintos",
-        "reportSchema.json"
+        "//schemas"
     ],
     deps = [
         ":p2p",

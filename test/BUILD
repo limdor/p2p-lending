@@ -12,6 +12,7 @@ py_test(
 py_test(
     name = "test_jsonReportSchema",
     srcs = ["test_jsonReportSchema.py"],
+    data = ["//schemas"],
     deps = [
         requirement("pytest"),
         requirement("jsonschema")
