@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "report-schema.json",
+  "title": "Monthly Report",
+  "description": "",
+  "type": "object",
+  "properties" : {
+    "reportId" : {
+      "description" : "The unique identifier for a monthly report",
+      "type" : "integer"
+    },
+    "dataFile" : {
+      "description" : "Path to the data file",
+      "type" : "string",
+      "pattern" : "^[A-Za-z0-9_-]*$"
+    },
+    "loansParts" : {
+      "description" : "Total number of different loans",
+      "type" : "integer",
+      "minimum": 0
+    },
+    "overallInvestment" : {
+      "description" : "Overall amount of money invested",
+      "type" : "number",
+      "minimum": 0
+    },
+    "countryStatistics" : {
+      "description" : "Statistics computed using data grouped by country",
+      "type" : "object",
+      "properties" : {
+        "investmentOneCountry" : {
+          "description" : "Percentage of invesment in a single country",
+          "type" : "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "investmentThreeCountries" : {
+          "description" : "Percentage of invesment in three different countries",
+          "type" : "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    },
+    "originadorStatistics" : {
+      "description" : "Statistics computed using data grouped by originator",
+      "type" : "object",
+      "properties" : {
+        "investmentOneOriginator" : {
+          "description" : "Percentage of invesment in a single originator",
+          "type" : "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        "investmentFiveOriginators" : {
+          "description" : "Percentage of invesment in five different originators",
+          "type" : "number",
+          "minimum": 0,
+          "maximum": 100
+        }
+      }
+    }
+  }
+}
