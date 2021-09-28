@@ -8,3 +8,12 @@ py_test(
         "//:p2p",
     ],
 )
+
+py_test(
+    name = "test_jsonReportSchema",
+    srcs = ["test_jsonReportSchema.py"],
+    deps = [
+        requirement("pytest"),
+        requirement("jsonschema")
+    ],
+)
