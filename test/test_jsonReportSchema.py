@@ -9,7 +9,7 @@ def test_jsonschema_version():
     assert "3.2.0" == jsonschema.__version__
 
 
-def test_load_monthlyReport_schema():
+def test_location_monthlyReport_schema():
     assert os.path.exists("schemas/monthlyReport.json")
 
 
