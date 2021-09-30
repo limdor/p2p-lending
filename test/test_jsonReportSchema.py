@@ -19,7 +19,5 @@ def test_monthlyReport_schema_is_valid_json():
         assert json.load(json_file)
 
 
-
-
 if __name__ == "__main__":
     sys.exit(pytest.main(["-rA",__file__]))
