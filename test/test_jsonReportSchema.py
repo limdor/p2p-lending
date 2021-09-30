@@ -14,7 +14,7 @@ def test_location_monthlyReport_schema():
     assert os.path.exists("schemas/monthlyReport.json")
 
 
-def test_monthlyReport_is_valid_json():
+def test_monthlyReport_schema_is_valid_json():
     with open("schemas/monthlyReport.json") as json_file:
         assert json.load(json_file)
 
