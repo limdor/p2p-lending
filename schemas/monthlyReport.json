@@ -42,7 +42,7 @@
         }
       }
     },
-    "originadorStatistics" : {
+    "originatorStatistics" : {
       "description" : "Statistics computed using data grouped by originator",
       "type" : "object",
       "properties" : {
