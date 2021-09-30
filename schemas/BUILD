@@ -1,5 +1,5 @@
 filegroup(
     name = "schemas",
-    srcs = glob(["*.json"]),
+    srcs = ["monthlyReport.json"],
     visibility = ["//visibility:public"],
 )
