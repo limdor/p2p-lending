@@ -9,6 +9,7 @@ py_binary(
     data = [
         "//data/iuvo",
         "//data/mintos",
+        "//schemas"
     ],
     deps = [
         ":p2p",
