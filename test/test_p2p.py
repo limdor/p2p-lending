@@ -1,5 +1,3 @@
-
-import sys
 import datetime
 from p2p import get_latest_report_date, filter_investment_files_by_newest_date
 

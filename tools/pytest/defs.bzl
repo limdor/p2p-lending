@@ -6,7 +6,7 @@ It will include the main and the pytest dependency
 
 load("@my_dev_deps//:requirements.bzl", "requirement")
 
-def pytest_test(name, srcs, deps = [], args = [], **kwargs):
+def pytest_test(name, srcs, deps = [], args = [], data = [], **kwargs):
     native.py_test(
         name = name,
         srcs = [
@@ -15,12 +15,18 @@ def pytest_test(name, srcs, deps = [], args = [], **kwargs):
         main = "//tools/pytest:pytest_wrapper.py",
         args = [
             "--capture=no",
+            "--pylint",
+            "--pylint-rcfile=$(location //tools/pytest:.pylintrc)",
             "-rA",
         ] + args + ["$(location :%s)" % x for x in srcs],
         python_version = "PY3",
         srcs_version = "PY3",
         deps = deps + [
             requirement("pytest"),
+            requirement("pytest-pylint"),
         ],
+        data = [
+            "//tools/pytest:.pylintrc",
+        ] + data,
         **kwargs
     )

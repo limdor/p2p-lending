@@ -10,8 +10,8 @@ pytest_test(
 )
 
 pytest_test(
-    name = "test_jsonReportSchema",
-    srcs = ["test_jsonReportSchema.py"],
+    name = "test_json_report_schema",
+    srcs = ["test_json_report_schema.py"],
     data = ["//schemas"],
     deps = [
         requirement("jsonschema")
