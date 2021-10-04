@@ -1,20 +1,19 @@
 load("@my_dev_deps//:requirements.bzl", "requirement")
+load("//tools/pytest:defs.bzl", "pytest_test")
 
-py_test(
+pytest_test(
     name = "test_p2p",
     srcs = ["test_p2p.py"],
     deps = [
-        requirement("pytest"),
         "//:p2p",
     ],
 )
 
-py_test(
+pytest_test(
     name = "test_jsonReportSchema",
     srcs = ["test_jsonReportSchema.py"],
     data = ["//schemas"],
     deps = [
-        requirement("pytest"),
         requirement("jsonschema")
     ],
 )
