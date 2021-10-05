@@ -1,7 +1,4 @@
-
-import sys
 import datetime
-import pytest
 from p2p import get_latest_report_date, filter_investment_files_by_newest_date
 
 def test_get_latest_report_date():
@@ -37,7 +34,3 @@ def test_filter_investment_files_by_newest_date():
         },
     }
     assert output_data == filter_investment_files_by_newest_date(input_data)
-
-
-if __name__ == "__main__":
-    sys.exit(pytest.main(["-rA",__file__]))
