@@ -10,6 +10,7 @@ COUNTRY = 'Country'
 LOAN_ORIGINATOR = 'Loan originator'
 OUTSTANDING_PRINCIPAL = 'Outstanding principal'
 INVESTMENT_PLATFORM = 'Investment platform'
+INTEREST_RATE = 'Interest rate'
 FILE_DATE = 'Date'
 RELEVANT_COLUMNS = [COUNTRY, LOAN_ORIGINATOR, OUTSTANDING_PRINCIPAL]
 DATA_DIRECTORY = os.path.join('.', 'data')
@@ -17,7 +18,7 @@ PLATFORM_SPECIFIC_DATA = {
     'iuvo': Marketplace(
         filename_regexp=re.compile(r'MyInvestments-(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2}).xlsx'),
         display_name='IUVO',
-        column_mapping={'Country': COUNTRY, 'Originator': LOAN_ORIGINATOR, 'Outstanding principal': OUTSTANDING_PRINCIPAL},
+        column_mapping={'Country': COUNTRY, 'Originator': LOAN_ORIGINATOR, 'Outstanding principal': OUTSTANDING_PRINCIPAL, 'Interest Rate (%)': INTEREST_RATE},
         originators_rename={'iCredit Poland': 'iCredit', 'iCredit Romania': 'iCredit'},
         header=3,
         skipfooter=3),
@@ -26,7 +27,7 @@ PLATFORM_SPECIFIC_DATA = {
         display_name='Mintos',
         # TODO: There might be money in 'Pending Payments' column even if the investment is not finished
         column_mapping={'Country': COUNTRY, 'Loan Originator': LOAN_ORIGINATOR,
-                        'Lending Company': LOAN_ORIGINATOR, 'Outstanding Principal': OUTSTANDING_PRINCIPAL},
+                        'Lending Company': LOAN_ORIGINATOR, 'Outstanding Principal': OUTSTANDING_PRINCIPAL, 'Interest Rate': INTEREST_RATE},
         originators_rename=None,
         header=0,
         skipfooter=0),
@@ -85,7 +86,8 @@ def get_dataframe_from_excel(file_path, date, investment_platform):
         file_path, 
         header=PLATFORM_SPECIFIC_DATA[investment_platform].header, 
         skipfooter=PLATFORM_SPECIFIC_DATA[investment_platform].skipfooter,
-        usecols= lambda column : column in PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping.keys()
+        usecols=lambda column: column in PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping.keys(
+        ) and PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping[column] in RELEVANT_COLUMNS
     ).rename(
         columns=PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping)
     if PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename:
