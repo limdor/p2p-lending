@@ -33,17 +33,6 @@ PLATFORM_SPECIFIC_DATA = {
 }
 
 
-def parse_investments(date, current_investments, column_mapping):
-    current_investments = current_investments.rename(columns=column_mapping)
-
-    current_investments = current_investments[RELEVANT_COLUMNS]
-    sum_outstanding_principal = current_investments[OUTSTANDING_PRINCIPAL].sum()
-    logger.info(f"Investment on {date}: {len(current_investments.index)} with a total amount of {sum_outstanding_principal:.2f}€")
-    group_by_country = current_investments.groupby([COUNTRY]).sum()
-    group_by_originator = current_investments.groupby([LOAN_ORIGINATOR]).sum()
-    return group_by_country, group_by_originator
-
-
 def get_latest_report_date(marketplace_files):
     newest_date = datetime.date.min
     for report_date in marketplace_files.keys():
