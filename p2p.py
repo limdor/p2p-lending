@@ -168,7 +168,7 @@ def report(show_past_investments):
         logger.info(overall_group_by_country)
 
         # Statistics by Loan Originator
-        logger.info("|- Investment by Country")
+        logger.info("|- Investment by Loan Originator")
         overall_group_by_originator = overall_group_by_date.groupby(LOAN_ORIGINATOR).sum()
         overall_group_by_originator = overall_group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False)
         overall_group_by_originator['Percentage'] = overall_group_by_originator[OUTSTANDING_PRINCIPAL] / total_invested_by_date
