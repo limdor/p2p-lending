@@ -1,6 +1,5 @@
 import argparse
 import p2p
-import logger
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

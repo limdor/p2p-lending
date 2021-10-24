@@ -1,6 +1,5 @@
 import pandas
 import os
-import re
 import datetime
 import marketplace.mintos as mintos
 import marketplace.iuvo as iuvo
