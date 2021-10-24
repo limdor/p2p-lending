@@ -2,35 +2,19 @@ import pandas
 import os
 import re
 import datetime
+import marketplace.mintos as mintos
+import marketplace.iuvo as iuvo
+import marketplace.marketplace as marketplace
 from logger import logger
-from marketplace import Marketplace
 from collections import defaultdict
 
-COUNTRY = 'Country'
-LOAN_ORIGINATOR = 'Loan originator'
-OUTSTANDING_PRINCIPAL = 'Outstanding principal'
 INVESTMENT_PLATFORM = 'Investment platform'
-INTEREST_RATE = 'Interest rate'
 FILE_DATE = 'Date'
-RELEVANT_COLUMNS = [COUNTRY, LOAN_ORIGINATOR, OUTSTANDING_PRINCIPAL]
+RELEVANT_COLUMNS = [marketplace.COUNTRY, marketplace.LOAN_ORIGINATOR, marketplace.OUTSTANDING_PRINCIPAL]
 DATA_DIRECTORY = os.path.join('.', 'data')
 PLATFORM_SPECIFIC_DATA = {
-    'iuvo': Marketplace(
-        filename_regexp=re.compile(r'MyInvestments-(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2}).xlsx'),
-        display_name='IUVO',
-        column_mapping={'Country': COUNTRY, 'Originator': LOAN_ORIGINATOR, 'Outstanding principal': OUTSTANDING_PRINCIPAL, 'Interest Rate (%)': INTEREST_RATE},
-        originators_rename={'iCredit Poland': 'iCredit', 'iCredit Romania': 'iCredit'},
-        header=3,
-        skipfooter=3),
-    'mintos': Marketplace(
-        filename_regexp=re.compile(r'(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})-current-investments.xlsx'),
-        display_name='Mintos',
-        # TODO: There might be money in 'Pending Payments' column even if the investment is not finished
-        column_mapping={'Country': COUNTRY, 'Loan Originator': LOAN_ORIGINATOR,
-                        'Lending Company': LOAN_ORIGINATOR, 'Outstanding Principal': OUTSTANDING_PRINCIPAL, 'Interest Rate': INTEREST_RATE},
-        originators_rename=None,
-        header=0,
-        skipfooter=0),
+    iuvo.MARKETPLACE_NAME: iuvo.MARKETPLACE_META_DATA,
+    mintos.MARKETPLACE_NAME: mintos.MARKETPLACE_META_DATA,
 }
 
 
@@ -80,7 +64,7 @@ def get_dataframe_from_excel(file_path, date, investment_platform):
     ).rename(
         columns=PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping)
     if PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename:
-        df[LOAN_ORIGINATOR].replace(
+        df[marketplace.LOAN_ORIGINATOR].replace(
             PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename, inplace=True )
     df[INVESTMENT_PLATFORM], df[FILE_DATE] = investment_platform, date
     return df
@@ -108,18 +92,18 @@ def generate_overall_report_per_date(df_investiments, investment_files):
     for date in sorted(set([ date for data_file in investment_files.values() for date in data_file ])):
         # Overall statistics
         overall_group_by_date = df_investiments[ df_investiments[FILE_DATE] == date ]
-        total_invested_by_date = overall_group_by_date[OUTSTANDING_PRINCIPAL].sum()
+        total_invested_by_date = overall_group_by_date[marketplace.OUTSTANDING_PRINCIPAL].sum()
         total_invested_parts = len(overall_group_by_date.index)
 
         # Statistics by Country
-        overall_group_by_country = overall_group_by_date.groupby(COUNTRY).sum()
-        overall_group_by_country = overall_group_by_country.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False)
-        overall_group_by_country['Percentage'] = overall_group_by_country[OUTSTANDING_PRINCIPAL] / total_invested_by_date
+        overall_group_by_country = overall_group_by_date.groupby(marketplace.COUNTRY).sum()
+        overall_group_by_country = overall_group_by_country.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False)
+        overall_group_by_country['Percentage'] = overall_group_by_country[marketplace.OUTSTANDING_PRINCIPAL] / total_invested_by_date
 
         # Statistics by Loan Originator
-        overall_group_by_originator = overall_group_by_date.groupby(LOAN_ORIGINATOR).sum()
-        overall_group_by_originator = overall_group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False)
-        overall_group_by_originator['Percentage'] = overall_group_by_originator[OUTSTANDING_PRINCIPAL] / total_invested_by_date
+        overall_group_by_originator = overall_group_by_date.groupby(marketplace.LOAN_ORIGINATOR).sum()
+        overall_group_by_originator = overall_group_by_originator.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False)
+        overall_group_by_originator['Percentage'] = overall_group_by_originator[marketplace.OUTSTANDING_PRINCIPAL] / total_invested_by_date
 
         # It will be used in the diversification
         overall_report[date] = {
@@ -160,17 +144,17 @@ def generate_diversification_report_per_date(overall_report):
 
         # Statistics by Country
         overall_group_by_country = overall_data['DataByCountry']
-        sum_on_top_3_countries = overall_group_by_country[OUTSTANDING_PRINCIPAL][0:3].sum()
+        sum_on_top_3_countries = overall_group_by_country[marketplace.OUTSTANDING_PRINCIPAL][0:3].sum()
         percentage_top_3_countries = (sum_on_top_3_countries / total_invested_parts) * 100
-        top_country = overall_group_by_country[OUTSTANDING_PRINCIPAL][0]
+        top_country = overall_group_by_country[marketplace.OUTSTANDING_PRINCIPAL][0]
         percentage_top_country = (top_country / total_invested_parts) * 100
         diversification_report_per_date[date]['countryStatistics'] = {'investmentOneCountry':percentage_top_country, 'investmentThreeCountries': percentage_top_3_countries}
 
         # Statistics by Loan Originator
         overall_group_by_originator = overall_data['DataByLoanOriginator']
-        sum_on_top_5_originators = overall_group_by_originator[OUTSTANDING_PRINCIPAL][0:5].sum()
+        sum_on_top_5_originators = overall_group_by_originator[marketplace.OUTSTANDING_PRINCIPAL][0:5].sum()
         percentage_top_5_originators = (sum_on_top_5_originators / total_invested_parts) * 100
-        top_originator = overall_group_by_originator[OUTSTANDING_PRINCIPAL][0]
+        top_originator = overall_group_by_originator[marketplace.OUTSTANDING_PRINCIPAL][0]
         percentage_top_originator = (top_originator / total_invested_parts) * 100
         diversification_report_per_date[date]['originatorStatistics'] = {'investmentOneOriginator':percentage_top_originator, 'investmentFiveOriginators': percentage_top_5_originators}
 
@@ -231,11 +215,11 @@ def report(show_past_investments):
                     (df_investiments[FILE_DATE] == date) &
                     (df_investiments[INVESTMENT_PLATFORM] == investment_platform) ]
                 logger.info(f'Investments by country:')
-                df_group_by_country = df_group_by_date_platform.groupby([COUNTRY]).sum()
-                logger.info(df_group_by_country.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
+                df_group_by_country = df_group_by_date_platform.groupby([marketplace.COUNTRY]).sum()
+                logger.info(df_group_by_country.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False))
                 logger.info(f'Investments by loan originator:')
-                df_group_by_originator = df_group_by_date_platform.groupby([LOAN_ORIGINATOR]).sum()
-                logger.info(df_group_by_originator.sort_values(by=OUTSTANDING_PRINCIPAL, ascending=False))
+                df_group_by_originator = df_group_by_date_platform.groupby([marketplace.LOAN_ORIGINATOR]).sum()
+                logger.info(df_group_by_originator.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False))
 
     overall_report = generate_overall_report_per_date(df_investiments, investment_files)
     print_overall_report_per_date(overall_report)
