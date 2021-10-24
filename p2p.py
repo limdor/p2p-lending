@@ -176,7 +176,7 @@ def print_diversification_report_per_date(diversification_report_per_date):
             f"   |- No more than 20% of loans are issued by any single lending company: {report['originatorStatistics']['investmentOneOriginator']:.2f}%")
 
 
-def report(show_past_investments):
+def main(show_past_investments):
 
     if show_past_investments:
         logger.info("Report containing all records")
