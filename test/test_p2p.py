@@ -1,7 +1,10 @@
 import datetime
 from unittest.mock import patch
+import pytest
+import pandas
 from p2p import get_latest_report_date, filter_investment_files_by_newest_date, \
-    read_marketplace_files
+    read_marketplace_files, generate_overall_report_per_date, \
+    generate_diversification_report_per_date
 
 
 def test_get_latest_report_date():
@@ -73,3 +76,124 @@ def test_filter_investment_files_by_newest_date():
         },
     }
     assert output_data == filter_investment_files_by_newest_date(input_data)
+
+
+def test_generate_overall_report_per_date():
+    input_data = {
+        'Country': {
+            0: 'Poland', 1: 'Spain', 2: 'Poland', 3: 'Spain', 4: 'Poland'
+        },
+        'Loan originator': {
+            0: 'Sun Finance', 1: 'Creamfinance', 2: 'Creditstar', 3: 'Creamfinance', 4: 'Creditstar'
+        },
+        'Outstanding principal': {
+            0: 50.0, 1: 75.0, 2: 10.0, 3: 75.0, 4: 15.0
+        },
+        'Investment platform': {
+            0: 'mintos', 1: 'mintos', 2: 'mintos', 3: 'mintos', 4: 'mintos'
+        },
+        'Date': {
+            0: datetime.date(2020, 11, 30), 1: datetime.date(2020, 11, 30),
+            2: datetime.date(2020, 11, 30), 3: datetime.date(2020, 11, 30),
+            4: datetime.date(2020, 11, 30)
+        }
+    }
+    input_data_frame = pandas.DataFrame(input_data)
+
+    input_files = {
+        'mintos': {
+            datetime.date(2021, 6, 30): './data/mintos/20210630-current-investments.xlsx',
+            datetime.date(2020, 11, 30): './data/mintos/20201130-current-investments.xlsx'
+        },
+        'iuvo': {
+            datetime.date(2020, 11, 30): './data/iuvo/MyInvestments-20201130.xlsx',
+            datetime.date(2021, 6, 30): './data/iuvo/MyInvestments-20210630.xlsx'
+        }
+    }
+    overall_report_per_date = generate_overall_report_per_date(input_data_frame, input_files)
+
+    expected_overall_report_per_date = {
+        datetime.date(2020, 11, 30): {
+            'Data': input_data_frame,
+            'DataByCountry': pandas.DataFrame({
+                'Outstanding principal': {'Spain': 150.0, 'Poland': 75.0},
+                'Percentage': {'Spain': 0.666, 'Poland': 0.333}
+            }),
+            'DataByLoanOriginator': pandas.DataFrame({
+                'Outstanding principal': {
+                    'Creamfinance': 150.0, 'Sun Finance': 50.0, 'Creditstar': 25.0
+                },
+                'Percentage': {
+                    'Creamfinance': 0.666, 'Sun Finance': 0.222, 'Creditstar': 0.111
+                }
+            }),
+            'TotalInvestment': 225.0,
+            'NumberLoanParts': 5
+        },
+        datetime.date(2021, 6, 30): {
+            'Data': pandas.DataFrame({
+                'Country': {},
+                'Loan originator': {},
+                'Outstanding principal': {},
+                'Investment platform': {},
+                'Date': {}
+            }),
+            'DataByCountry': pandas.DataFrame({
+                'Outstanding principal': {},
+                'Percentage': {}
+            }),
+            'DataByLoanOriginator': pandas.DataFrame({
+                'Outstanding principal': {},
+                'Percentage': {}
+            }),
+            'TotalInvestment': 0,
+            'NumberLoanParts': 0
+        }
+    }
+    assert sorted(overall_report_per_date.keys()) == sorted(expected_overall_report_per_date.keys())
+    for date, overall_report in overall_report_per_date.items():
+        assert sorted(overall_report.keys()) == \
+            sorted(expected_overall_report_per_date[date].keys())
+        for key, value in overall_report.items():
+            if isinstance(value, pandas.core.frame.DataFrame):
+                pandas.testing.assert_frame_equal(
+                    value, expected_overall_report_per_date[date][key],
+                    check_names=False, check_index_type=False, check_dtype=False, atol=1e-3)
+            else:
+                assert value == expected_overall_report_per_date[date][key]
+
+def test_generate_diversification_report_per_date():
+    input_overall_report = {
+        datetime.date(2020, 11, 30): {
+            'DataByCountry': pandas.DataFrame({
+                'Outstanding principal': {'Spain': 150.0, 'Poland': 75.0},
+                'Percentage': {'Spain': 0.666, 'Poland': 0.333}
+            }),
+            'DataByLoanOriginator': pandas.DataFrame({
+                'Outstanding principal': {
+                    'Creamfinance': 100.0, 'Sun Finance': 100.0, 'Creditstar': 25.0
+                },
+                'Percentage': {
+                    'Creamfinance': 0.444, 'Sun Finance': 0.444, 'Creditstar': 0.111
+                }
+            }),
+            'TotalInvestment': 225.0,
+            'NumberLoanParts': 5
+        },
+    }
+    expected_output = {
+        datetime.date(2020, 11, 30): {
+            'reportId': datetime.date(2020, 11, 30),
+            'countryStatistics': {
+                'investmentOneCountry': pytest.approx(66.66, abs=1e-2),
+                'investmentThreeCountries': 100.0
+            },
+            'originatorStatistics': {
+                'investmentOneOriginator': pytest.approx(44.44, abs=1e-2),
+                'investmentFiveOriginators': 100.0
+            },
+            'overallInvestment': 225.0,
+            'loanParts': 5,
+        }
+    }
+    assert expected_output == generate_diversification_report_per_date(input_overall_report)
