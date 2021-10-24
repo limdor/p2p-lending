@@ -20,11 +20,11 @@ py_library(
     name = "p2p",
     srcs = [
         "__init__.py",
-        "marketplace.py",
+        "logger.py",
         "p2p.py",
-        "logger.py"
     ],
     deps = [
+        "//marketplace",
         requirement("pandas"),
         requirement("xlrd"),
         requirement("openpyxl"),
