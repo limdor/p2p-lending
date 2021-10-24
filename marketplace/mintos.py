@@ -7,7 +7,7 @@ MARKETPLACE_META_DATA = marketplace.Marketplace(
         r'(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})-current-investments.xlsx'
     ),
     display_name='Mintos',
-    # TODO: There might be money in 'Pending Payments' column even if the investment is not finished
+    # There might be money in 'Pending Payments' column even if the investment is not finished
     column_mapping={
         'Country': marketplace.COUNTRY,
         'Loan Originator': marketplace.LOAN_ORIGINATOR,
