@@ -1,5 +1,5 @@
 import re
-import marketplace.marketplace as marketplace
+from marketplace import marketplace
 
 MARKETPLACE_NAME = 'mintos'
 MARKETPLACE_META_DATA = marketplace.Marketplace(

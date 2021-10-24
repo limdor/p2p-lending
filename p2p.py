@@ -2,9 +2,9 @@ import os
 import datetime
 from collections import defaultdict
 import pandas
-import marketplace.mintos as mintos
-import marketplace.iuvo as iuvo
-import marketplace.marketplace as marketplace
+from marketplace import mintos
+from marketplace import iuvo
+from marketplace import marketplace
 from logger import logger
 
 INVESTMENT_PLATFORM = 'Investment platform'
