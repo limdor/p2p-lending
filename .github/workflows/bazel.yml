@@ -16,7 +16,7 @@ jobs:
       uses: actions/checkout@v1
 
     - name: Bazel build
-      run: bazel build ...
+      run: bazel build //... --aspects //tools/linting:aspect.bzl%lint --output_groups=report
 
     - name: Bazel test
       run: bazel test ...
