@@ -1,6 +1,5 @@
 import argparse
 import p2p
-import logger
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -8,4 +7,4 @@ if __name__ == "__main__":
                         help="Show past investments")
     args = parser.parse_args()
     show_past_investments = args.past
-    p2p.report(show_past_investments)
+    p2p.main(show_past_investments)
