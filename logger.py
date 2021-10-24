@@ -16,7 +16,7 @@ sys_handler.setLevel(logging.INFO)
 logger.addHandler(sys_handler)
 
 # File logger
-file_handler = logging.FileHandler(f"log")
+file_handler = logging.FileHandler("log")
 file_handler.setLevel(logging.DEBUG)
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)

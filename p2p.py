@@ -119,9 +119,9 @@ def print_overall_report_per_date(overall_report):
     for date, overall_data in overall_report.items():
         logger.info(f"Overall Investments on {date}")
         logger.info(f"|- Overall Investment: {overall_data['TotalInvestment']:.2f}€")
-        logger.info(f"|- Investment by Country")
+        logger.info("|- Investment by Country")
         logger.info(overall_data['DataByCountry'])
-        logger.info(f"|- Investment by Loan Originator")
+        logger.info("|- Investment by Loan Originator")
         logger.info(overall_data['DataByLoanOriginator'])
 
 
@@ -165,10 +165,10 @@ def print_diversification_report_per_date(diversification_report_per_date):
         logger.info(f"Investments diversification on {date}")
         logger.info(f"|- Diversification Investment: {report['overallInvestment']:.2f}€")
         logger.info(f"|- The portfolio consists of at least 100 different loan parts: {report['loanParts']:d}")
-        logger.info(f"|- Statistics by Country:")
+        logger.info("|- Statistics by Country:")
         logger.info(f"   |- No more than 50% of loans are issued in 3 (or less) countries: {report['countryStatistics']['investmentThreeCountries']:.2f}%")
         logger.info(f"   |- No more than 33% of loans are issued in any single country: {report['countryStatistics']['investmentOneCountry']:.2f}%")
-        logger.info(f"|- Statistics by Originator:")
+        logger.info("|- Statistics by Originator:")
         logger.info(
             f"   |- No more than 50% of loans are issued by 5 (or less) lending companies: {report['originatorStatistics']['investmentFiveOriginators']:.2f}%")
         logger.info(
@@ -210,10 +210,10 @@ def main(show_past_investments):
                 df_group_by_date_platform = df_investiments[
                     (df_investiments[FILE_DATE] == date) &
                     (df_investiments[INVESTMENT_PLATFORM] == investment_platform)]
-                logger.info(f'Investments by country:')
+                logger.info('Investments by country:')
                 df_group_by_country = df_group_by_date_platform.groupby([marketplace.COUNTRY]).sum()
                 logger.info(df_group_by_country.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False))
-                logger.info(f'Investments by loan originator:')
+                logger.info('Investments by loan originator:')
                 df_group_by_originator = df_group_by_date_platform.groupby([marketplace.LOAN_ORIGINATOR]).sum()
                 logger.info(df_group_by_originator.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False))
 
