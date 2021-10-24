@@ -84,7 +84,7 @@ def filter_investment_files_by_newest_date(investment_data):
 
 def generate_overall_report_per_date(df_investiments, investment_files):
     overall_report = defaultdict(datetime.datetime)
-    for date in sorted(set([ date for data_file in investment_files.values() for date in data_file ])):
+    for date in sorted({date for data_file in investment_files.values() for date in data_file}):
         # Overall statistics
         overall_group_by_date = df_investiments[df_investiments[FILE_DATE] == date]
         total_invested_by_date = overall_group_by_date[marketplace.OUTSTANDING_PRINCIPAL].sum()
