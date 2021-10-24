@@ -48,15 +48,15 @@ def aggregate_investment_data(investment_files):
     list_dataframes = list()
     for investment_platform, files in investment_files.items():
         for date, file_path in sorted(files.items(), key=lambda item: item[0]):
-            list_dataframes.append( get_dataframe_from_excel(file_path,date,investment_platform) )
-    df_investiments = pandas.concat( list_dataframes )
+            list_dataframes.append(get_dataframe_from_excel(file_path, date, investment_platform))
+    df_investiments = pandas.concat(list_dataframes)
     return df_investiments
 
 
 def get_dataframe_from_excel(file_path, date, investment_platform):
     df = pandas.read_excel(
-        file_path, 
-        header=PLATFORM_SPECIFIC_DATA[investment_platform].header, 
+        file_path,
+        header=PLATFORM_SPECIFIC_DATA[investment_platform].header,
         skipfooter=PLATFORM_SPECIFIC_DATA[investment_platform].skipfooter,
         usecols=lambda column: column in PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping.keys(
         ) and PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping[column] in RELEVANT_COLUMNS
@@ -64,7 +64,7 @@ def get_dataframe_from_excel(file_path, date, investment_platform):
         columns=PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping)
     if PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename:
         df[marketplace.LOAN_ORIGINATOR].replace(
-            PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename, inplace=True )
+            PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename, inplace=True)
     df[INVESTMENT_PLATFORM], df[FILE_DATE] = investment_platform, date
     return df
 
@@ -82,7 +82,7 @@ def filter_investment_files_by_newest_date(investment_data):
         newest_date = get_latest_report_date(files)
         filtered_files[investment_platform] = {
             key: value for (key, value) in files.items() if key == newest_date
-            }
+        }
     return filtered_files
 
 
@@ -90,7 +90,7 @@ def generate_overall_report_per_date(df_investiments, investment_files):
     overall_report = defaultdict(datetime.datetime)
     for date in sorted(set([ date for data_file in investment_files.values() for date in data_file ])):
         # Overall statistics
-        overall_group_by_date = df_investiments[ df_investiments[FILE_DATE] == date ]
+        overall_group_by_date = df_investiments[df_investiments[FILE_DATE] == date]
         total_invested_by_date = overall_group_by_date[marketplace.OUTSTANDING_PRINCIPAL].sum()
         total_invested_parts = len(overall_group_by_date.index)
 
@@ -106,11 +106,11 @@ def generate_overall_report_per_date(df_investiments, investment_files):
 
         # It will be used in the diversification
         overall_report[date] = {
-            'Data' : overall_group_by_date,
-            'DataByCountry' : overall_group_by_country,
-            'DataByLoanOriginator' : overall_group_by_originator,
-            'TotalInvestment' :  total_invested_by_date,
-            'NumberLoanParts' : total_invested_parts
+            'Data': overall_group_by_date,
+            'DataByCountry': overall_group_by_country,
+            'DataByLoanOriginator': overall_group_by_originator,
+            'TotalInvestment':  total_invested_by_date,
+            'NumberLoanParts': total_invested_parts
         }
 
     return overall_report
@@ -193,13 +193,11 @@ def report(show_past_investments):
         investment_files = all_investment_files.copy()
     print_investment_data(investment_files)
 
-
     logger.info("***********************************")
     logger.info("**** Aggregate available data ****")
     logger.info("***********************************")
     df_investiments = aggregate_investment_data(investment_files)
     logger.info('TODO: function to summarise information')
-
 
     logger.info("*******************************")
     logger.info("**** Plataform Investments ***")
@@ -212,7 +210,7 @@ def report(show_past_investments):
             if show_past_investments or date == newest_date:
                 df_group_by_date_platform = df_investiments[
                     (df_investiments[FILE_DATE] == date) &
-                    (df_investiments[INVESTMENT_PLATFORM] == investment_platform) ]
+                    (df_investiments[INVESTMENT_PLATFORM] == investment_platform)]
                 logger.info(f'Investments by country:')
                 df_group_by_country = df_group_by_date_platform.groupby([marketplace.COUNTRY]).sum()
                 logger.info(df_group_by_country.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False))
