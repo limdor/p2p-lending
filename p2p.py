@@ -134,8 +134,7 @@ def generate_diversification_report_per_date(overall_report):
         # Overall statistics
         total_invested_parts = overall_data['TotalInvestment']
         diversification_report_per_date[date]['overallInvestment'] = total_invested_parts
-        total_loan_parts = overall_data['NumberLoanParts']
-        diversification_report_per_date[date]['loanParts'] = total_loan_parts
+        diversification_report_per_date[date]['loanParts'] = overall_data['NumberLoanParts']
 
         # Statistics by Country
         overall_group_by_country = overall_data['DataByCountry']
