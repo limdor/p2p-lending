@@ -1,11 +1,11 @@
-import pandas
 import os
 import datetime
+from collections import defaultdict
+import pandas
 import marketplace.mintos as mintos
 import marketplace.iuvo as iuvo
 import marketplace.marketplace as marketplace
 from logger import logger
-from collections import defaultdict
 
 INVESTMENT_PLATFORM = 'Investment platform'
 FILE_DATE = 'Date'
