@@ -5,7 +5,9 @@ import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 user = getpass.getuser()
-formatter = logging.Formatter(f"[%(asctime)s] %(levelname)s - {user} - %(message)s",datefmt="%m-%d %H:%M:%S")
+formatter = logging.Formatter(
+    f"[%(asctime)s] %(levelname)s - {user} - %(message)s", datefmt="%m-%d %H:%M:%S"
+)
 
 
 # System output logger (required to see the outputs when executing with Bazel)
