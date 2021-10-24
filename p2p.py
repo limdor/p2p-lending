@@ -18,11 +18,7 @@ PLATFORM_SPECIFIC_DATA = {
 
 
 def get_latest_report_date(marketplace_files):
-    newest_date = datetime.date.min
-    for report_date in marketplace_files.keys():
-        if(report_date > newest_date):
-            newest_date = report_date
-    return newest_date
+    return max(marketplace_files.keys())
 
 
 def read_marketplace_files(data_directory, marketplace_name):
