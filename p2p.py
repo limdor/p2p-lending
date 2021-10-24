@@ -41,7 +41,7 @@ def collect_investment_data(data_directory):
 
 
 def aggregate_investment_data(investment_files):
-    list_dataframes = list()
+    list_dataframes = []
     for investment_platform, files in investment_files.items():
         for date, file_path in sorted(files.items(), key=lambda item: item[0]):
             list_dataframes.append(get_dataframe_from_excel(file_path, date, investment_platform))
