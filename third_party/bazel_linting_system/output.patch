@@ -1,0 +1,11 @@
+--- lint.sh.TEMPLATE	2021-10-24 21:57:20.180000000 +0200
++++ lint.sh.TEMPLATE	2021-10-24 21:43:26.540000000 +0200
+@@ -23,7 +23,7 @@
+     cp "${arr_pair[0]}" "${arr_pair[1]}"
+   done
+ 
+-  {LINTER_EXE} {LINTER_EXE_CONFIG} {LINTER_SRCS} > {REPORT}
++  {LINTER_EXE} {LINTER_EXE_CONFIG} {LINTER_SRCS} | tee {REPORT}
+ }
+ 
+ main "$@"

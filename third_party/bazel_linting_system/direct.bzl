@@ -13,5 +13,6 @@ def load_bazel_linting_system():
         urls = [
             "https://github.com/thundergolfer/bazel-linting-system/archive/refs/tags/v0.4.1.zip",
         ],
+        patches = ["//third_party/bazel_linting_system:output.patch"],
         sha256 = "fa62cecb008e6f319a81f4f619c0d632ad7e3087c7d0c331028eb91c027d49e5",
     )
