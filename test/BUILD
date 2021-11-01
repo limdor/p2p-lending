@@ -25,3 +25,11 @@ pytest_test(
         "//:p2p"
     ]
 )
+
+pytest_test(
+    name = "test_diversification_reports",
+    srcs = ["test_diversification_reports.py"],
+    deps = [
+        "//:p2p"
+    ]
+)
