@@ -1,5 +1,6 @@
 import datetime
 from unittest.mock import patch
+from io import StringIO
 import pytest
 import pandas
 from p2p import get_latest_report_date, filter_investment_files_by_newest_date, \
@@ -79,26 +80,15 @@ def test_filter_investment_files_by_newest_date():
 
 
 def test_generate_overall_report_per_date():
-    input_data = {
-        'Country': {
-            0: 'Poland', 1: 'Spain', 2: 'Poland', 3: 'Spain', 4: 'Poland'
-        },
-        'Loan originator': {
-            0: 'Sun Finance', 1: 'Creamfinance', 2: 'Creditstar', 3: 'Creamfinance', 4: 'Creditstar'
-        },
-        'Outstanding principal': {
-            0: 50.0, 1: 75.0, 2: 10.0, 3: 75.0, 4: 15.0
-        },
-        'Investment platform': {
-            0: 'mintos', 1: 'mintos', 2: 'mintos', 3: 'mintos', 4: 'mintos'
-        },
-        'Date': {
-            0: datetime.date(2020, 11, 30), 1: datetime.date(2020, 11, 30),
-            2: datetime.date(2020, 11, 30), 3: datetime.date(2020, 11, 30),
-            4: datetime.date(2020, 11, 30)
-        }
-    }
-    input_data_frame = pandas.DataFrame(input_data)
+    input_data = StringIO(
+        "Country,Loan originator,Outstanding principal,Investment platform,Date\n"\
+        "Poland,Sun Finance,50.0,mintos,2020-11-30\n"\
+        "Spain,Creamfinance,75.0,mintos,2020-11-30\n"\
+        "Poland,Creditstar,10.0,mintos,2020-11-30\n"\
+        "Spain,Creamfinance,75.0,mintos,2020-11-30\n"\
+        "Poland,Creditstar,15.0,mintos,2020-11-30\n"
+    )
+    input_data_frame = pandas.read_csv(input_data, parse_dates=['Date'])
 
     input_files = {
         'mintos': {
@@ -150,6 +140,7 @@ def test_generate_overall_report_per_date():
             'NumberLoanParts': 0
         }
     }
+
     assert sorted(overall_report_per_date.keys()) == sorted(expected_overall_report_per_date.keys())
     for date, overall_report in overall_report_per_date.items():
         assert sorted(overall_report.keys()) == \
