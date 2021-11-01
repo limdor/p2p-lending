@@ -25,6 +25,7 @@ py_library(
     ],
     deps = [
         "//marketplace",
+        "//reports",
         requirement("pandas"),
         requirement("xlrd"),
         requirement("openpyxl"),
