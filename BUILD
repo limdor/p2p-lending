@@ -13,6 +13,7 @@ py_binary(
     ],
     deps = [
         ":p2p",
+        ":logger",
     ]
 )
 
@@ -31,4 +32,12 @@ py_library(
         requirement("openpyxl"),
     ],
     visibility = ["//test:__pkg__"],
+)
+
+py_library(
+    name = "logger",
+    srcs = [
+        "logger.py",
+    ],
+    visibility = ["//visibility:public"],
 )
