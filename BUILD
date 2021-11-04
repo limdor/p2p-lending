@@ -13,6 +13,7 @@ py_binary(
     ],
     deps = [
         ":p2p",
+        ":logger",
     ]
 )
 
@@ -20,14 +21,23 @@ py_library(
     name = "p2p",
     srcs = [
         "__init__.py",
-        "logger.py",
         "p2p.py",
     ],
     deps = [
+        ":logger",
         "//marketplace",
+        "//reports",
         requirement("pandas"),
         requirement("xlrd"),
         requirement("openpyxl"),
     ],
     visibility = ["//test:__pkg__"],
+)
+
+py_library(
+    name = "logger",
+    srcs = [
+        "logger.py",
+    ],
+    visibility = ["//visibility:public"],
 )
