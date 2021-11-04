@@ -21,10 +21,10 @@ py_library(
     name = "p2p",
     srcs = [
         "__init__.py",
-        "logger.py",
         "p2p.py",
     ],
     deps = [
+        ":logger",
         "//marketplace",
         "//reports",
         requirement("pandas"),
