@@ -10,25 +10,16 @@ def test_overall_generate_report_per_date():
         "Spain,Creamfinance,75.0,mintos,2020-11-30\n"\
         "Poland,Creditstar,10.0,mintos,2020-11-30\n"\
         "Spain,Creamfinance,75.0,mintos,2020-11-30\n"\
-        "Poland,Creditstar,15.0,mintos,2020-11-30\n"
+        "Poland,Creditstar,15.0,mintos,2020-11-30\n"\
+        "Spain,Creditstar,15.0,mintos,2021-06-30\n"
     )
     input_data_frame = pandas.read_csv(input_data, parse_dates=['Date'])
 
-    input_files = {
-        'mintos': {
-            datetime.date(2021, 6, 30): './data/mintos/20210630-current-investments.xlsx',
-            datetime.date(2020, 11, 30): './data/mintos/20201130-current-investments.xlsx'
-        },
-        'iuvo': {
-            datetime.date(2020, 11, 30): './data/iuvo/MyInvestments-20201130.xlsx',
-            datetime.date(2021, 6, 30): './data/iuvo/MyInvestments-20210630.xlsx'
-        }
-    }
-    overall_report_per_date = overall.generate_report_per_date(input_data_frame, input_files)
+    overall_report_per_date = overall.generate_report_per_date(input_data_frame)
 
     expected_overall_report_per_date = {
         datetime.date(2020, 11, 30): {
-            'Data': input_data_frame,
+            'Data': input_data_frame[input_data_frame.index.isin([0,1,2,3,4])],
             'DataByCountry': pandas.DataFrame({
                 'Outstanding principal': {'Spain': 150.0, 'Poland': 75.0},
                 'Percentage': {'Spain': 0.666, 'Poland': 0.333}
@@ -45,23 +36,17 @@ def test_overall_generate_report_per_date():
             'NumberLoanParts': 5
         },
         datetime.date(2021, 6, 30): {
-            'Data': pandas.DataFrame({
-                'Country': {},
-                'Loan originator': {},
-                'Outstanding principal': {},
-                'Investment platform': {},
-                'Date': {}
-            }),
+            'Data': input_data_frame[input_data_frame.index.isin([5])],
             'DataByCountry': pandas.DataFrame({
-                'Outstanding principal': {},
-                'Percentage': {}
+                'Outstanding principal': {'Spain': 15.0},
+                'Percentage': {'Spain': 1.000}
             }),
             'DataByLoanOriginator': pandas.DataFrame({
-                'Outstanding principal': {},
-                'Percentage': {}
+                'Outstanding principal': {'Creditstar': 15.0},
+                'Percentage': {'Creditstar': 1.000}
             }),
-            'TotalInvestment': 0,
-            'NumberLoanParts': 0
+            'TotalInvestment': 15.0,
+            'NumberLoanParts': 1
         }
     }
 
