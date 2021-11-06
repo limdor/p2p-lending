@@ -5,11 +5,11 @@ from logger import logger
 from marketplace import marketplace
 
 
-def generate_report_per_date(df_investiments, investment_files):
+def generate_report_per_date(df_investiments):
     overall_report = defaultdict(datetime.datetime)
-    for date in sorted({date for data_file in investment_files.values() for date in data_file}):
+    for date in sorted(df_investiments[marketplace.FILE_DATE].unique()):
         # Overall statistics
-        overall_group_by_date = df_investiments[df_investiments[marketplace.FILE_DATE] == pandas.Timestamp(date)]
+        overall_group_by_date = df_investiments[df_investiments[marketplace.FILE_DATE] == date]
         total_invested_by_date = overall_group_by_date[marketplace.OUTSTANDING_PRINCIPAL].sum()
         total_invested_parts = len(overall_group_by_date.index)
 
@@ -24,7 +24,7 @@ def generate_report_per_date(df_investiments, investment_files):
         overall_group_by_originator['Percentage'] = overall_group_by_originator[marketplace.OUTSTANDING_PRINCIPAL] / total_invested_by_date
 
         # It will be used in the diversification
-        overall_report[date] = {
+        overall_report[datetime.datetime.date(pandas.to_datetime(date))] = {
             'Data': overall_group_by_date,
             'DataByCountry': overall_group_by_country,
             'DataByLoanOriginator': overall_group_by_originator,

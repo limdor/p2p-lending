@@ -124,7 +124,7 @@ def main(show_past_investments):
                 df_group_by_originator = df_group_by_date_platform.groupby([marketplace.LOAN_ORIGINATOR]).sum()
                 logger.info(df_group_by_originator.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False))
 
-    overall_report = overall.generate_report_per_date(df_investiments, investment_files)
+    overall_report = overall.generate_report_per_date(df_investiments)
     overall.print_report_per_date(overall_report)
 
     diversification_report_per_date = diversification.generate_report_per_date(overall_report)
