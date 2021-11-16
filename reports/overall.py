@@ -6,31 +6,35 @@ from marketplace import marketplace
 
 
 def generate_report_per_date(df_investiments):
-    overall_report = defaultdict(datetime.datetime)
+    overall_report_per_date = defaultdict(datetime.datetime)
     for date in sorted(df_investiments[marketplace.FILE_DATE].unique()):
-        # Overall statistics
-        overall_group_by_date = df_investiments[df_investiments[marketplace.FILE_DATE] == date]
-        total_invested_by_date = overall_group_by_date[marketplace.OUTSTANDING_PRINCIPAL].sum()
-        total_invested_parts = len(overall_group_by_date.index)
+        overall_report_per_date[datetime.datetime.date(pandas.to_datetime(date))] = generate_report(
+            df_investiments[df_investiments[marketplace.FILE_DATE] == date])
 
-        # Statistics by Country
-        overall_group_by_country = overall_group_by_date.groupby(marketplace.COUNTRY).sum()
-        overall_group_by_country = overall_group_by_country.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False)
-        overall_group_by_country['Percentage'] = overall_group_by_country[marketplace.OUTSTANDING_PRINCIPAL] / total_invested_by_date
+    return overall_report_per_date
 
-        # Statistics by Loan Originator
-        overall_group_by_originator = overall_group_by_date.groupby(marketplace.LOAN_ORIGINATOR).sum()
-        overall_group_by_originator = overall_group_by_originator.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False)
-        overall_group_by_originator['Percentage'] = overall_group_by_originator[marketplace.OUTSTANDING_PRINCIPAL] / total_invested_by_date
 
-        # It will be used in the diversification
-        overall_report[datetime.datetime.date(pandas.to_datetime(date))] = {
-            'Data': overall_group_by_date,
-            'DataByCountry': overall_group_by_country,
-            'DataByLoanOriginator': overall_group_by_originator,
-            'TotalInvestment':  total_invested_by_date,
-            'NumberLoanParts': total_invested_parts
-        }
+def generate_report(investment_data):
+    overall_report = {}
+    overall_report['Data'] = investment_data
+
+    # Overall statistics
+    total_invested_by_date = investment_data[marketplace.OUTSTANDING_PRINCIPAL].sum()
+    overall_report['TotalInvestment'] = total_invested_by_date
+    total_invested_parts = len(investment_data.index)
+    overall_report['NumberLoanParts'] = total_invested_parts
+
+    # Statistics by Country
+    overall_group_by_country = investment_data.groupby(marketplace.COUNTRY).sum()
+    overall_group_by_country = overall_group_by_country.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False)
+    overall_group_by_country['Percentage'] = overall_group_by_country[marketplace.OUTSTANDING_PRINCIPAL] / total_invested_by_date
+    overall_report['DataByCountry'] = overall_group_by_country
+
+    # Statistics by Loan Originator
+    overall_group_by_originator = investment_data.groupby(marketplace.LOAN_ORIGINATOR).sum()
+    overall_group_by_originator = overall_group_by_originator.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False)
+    overall_group_by_originator['Percentage'] = overall_group_by_originator[marketplace.OUTSTANDING_PRINCIPAL] / total_invested_by_date
+    overall_report['DataByLoanOriginator'] = overall_group_by_originator
 
     return overall_report
 
