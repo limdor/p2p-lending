@@ -3,6 +3,11 @@ from collections import defaultdict
 import pandas
 from logger import logger
 from marketplace import marketplace
+from . import calculator
+
+
+def compute_total_investment(investment_raw_data):
+    return investment_raw_data[marketplace.OUTSTANDING_PRINCIPAL].sum()
 
 
 def generate_report_per_date(df_investiments):
@@ -14,27 +19,13 @@ def generate_report_per_date(df_investiments):
     return overall_report_per_date
 
 
-def generate_report(investment_data):
+def generate_report(investment_raw_data):
     overall_report = {}
-    overall_report['Data'] = investment_data
-
-    # Overall statistics
-    total_invested_by_date = investment_data[marketplace.OUTSTANDING_PRINCIPAL].sum()
-    overall_report['TotalInvestment'] = total_invested_by_date
-    total_invested_parts = len(investment_data.index)
-    overall_report['NumberLoanParts'] = total_invested_parts
-
-    # Statistics by Country
-    overall_group_by_country = investment_data.groupby(marketplace.COUNTRY).sum()
-    overall_group_by_country = overall_group_by_country.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False)
-    overall_group_by_country['Percentage'] = overall_group_by_country[marketplace.OUTSTANDING_PRINCIPAL] / total_invested_by_date
-    overall_report['DataByCountry'] = overall_group_by_country
-
-    # Statistics by Loan Originator
-    overall_group_by_originator = investment_data.groupby(marketplace.LOAN_ORIGINATOR).sum()
-    overall_group_by_originator = overall_group_by_originator.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False)
-    overall_group_by_originator['Percentage'] = overall_group_by_originator[marketplace.OUTSTANDING_PRINCIPAL] / total_invested_by_date
-    overall_report['DataByLoanOriginator'] = overall_group_by_originator
+    overall_report['Data'] = investment_raw_data
+    overall_report['TotalInvestment'] = calculator.get_total_investment(investment_raw_data)
+    overall_report['NumberLoanParts'] = calculator.get_number_loan_parts(investment_raw_data)
+    overall_report['DataByCountry'] = calculator.get_percentage_investment_by_country(investment_raw_data)
+    overall_report['DataByLoanOriginator'] = calculator.get_percentage_investment_by_originator(investment_raw_data)
 
     return overall_report
 

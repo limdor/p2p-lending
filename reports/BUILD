@@ -6,7 +6,8 @@ py_library(
     srcs = [
         "__init__.py",
         "overall.py",
-        "diversification.py"
+        "diversification.py",
+        "calculator.py"
     ],
     deps = [
         "//:logger",
