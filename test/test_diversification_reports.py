@@ -25,10 +25,10 @@ def test_diversification_generate_report_per_date():
             }),
             'DataByLoanOriginator': pandas.DataFrame({
                 'Outstanding principal': {
-                    'Creamfinance': 100.0, 'Sun Finance': 100.0, 'Creditstar': 25.0
+                    'Creamfinance': 150.0, 'Sun Finance': 50.0, 'Creditstar': 25.0
                 },
                 'Percentage': {
-                    'Creamfinance': 0.444, 'Sun Finance': 0.444, 'Creditstar': 0.111
+                    'Creamfinance': 0.666, 'Sun Finance': 0.222, 'Creditstar': 0.111
                 }
             }),
             'TotalInvestment': 225.0,
@@ -43,7 +43,7 @@ def test_diversification_generate_report_per_date():
                 'investmentThreeCountries': 100.0
             },
             'originatorStatistics': {
-                'investmentOneOriginator': pytest.approx(44.44, abs=1e-2),
+                'investmentOneOriginator': pytest.approx(66.66, abs=1e-2),
                 'investmentFiveOriginators': 100.0
             },
             'overallInvestment': 225.0,
