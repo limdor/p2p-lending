@@ -1,5 +1,5 @@
 from logger import logger
-from marketplace import marketplace
+from . import calculator
 
 
 def generate_report_per_date(overall_report):
@@ -13,29 +13,16 @@ def generate_report_per_date(overall_report):
 def generate_report(date, overall_data):
     diversification_report = {}
     diversification_report['reportId'] = date
-
-    # Overall statistics
-    total_invested_parts = overall_data['TotalInvestment']
-    diversification_report['overallInvestment'] = total_invested_parts
-    diversification_report['loanParts'] = overall_data['NumberLoanParts']
-
-    # Statistics by Country
-    overall_group_by_country = overall_data['DataByCountry']
-    sum_on_top_3_countries = overall_group_by_country[marketplace.OUTSTANDING_PRINCIPAL][0:3].sum()
-    percentage_top_3_countries = (sum_on_top_3_countries / total_invested_parts) * 100
-    top_country = overall_group_by_country[marketplace.OUTSTANDING_PRINCIPAL][0]
-    percentage_top_country = (top_country / total_invested_parts) * 100
+    diversification_report['overallInvestment'] = calculator.get_total_investment(overall_data['Data'])
+    diversification_report['loanParts'] = calculator.get_number_loan_parts(overall_data['Data'])
     diversification_report['countryStatistics'] = {
-        'investmentOneCountry': percentage_top_country, 'investmentThreeCountries': percentage_top_3_countries}
-
-    # Statistics by Loan Originator
-    overall_group_by_originator = overall_data['DataByLoanOriginator']
-    sum_on_top_5_originators = overall_group_by_originator[marketplace.OUTSTANDING_PRINCIPAL][0:5].sum()
-    percentage_top_5_originators = (sum_on_top_5_originators / total_invested_parts) * 100
-    top_originator = overall_group_by_originator[marketplace.OUTSTANDING_PRINCIPAL][0]
-    percentage_top_originator = (top_originator / total_invested_parts) * 100
+        'investmentOneCountry': calculator.get_percentage_top_country(overall_data['Data']),
+        'investmentThreeCountries': calculator.get_percentage_top_3_countries(overall_data['Data'])
+    }
     diversification_report['originatorStatistics'] = {
-        'investmentOneOriginator': percentage_top_originator, 'investmentFiveOriginators': percentage_top_5_originators}
+        'investmentOneOriginator': calculator.get_percentage_top_originator(overall_data['Data']),
+        'investmentFiveOriginators': calculator.get_percentage_top_5_originators(overall_data['Data'])
+    }
 
     return diversification_report
 
