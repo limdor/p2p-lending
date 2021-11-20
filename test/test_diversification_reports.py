@@ -1,11 +1,24 @@
 import datetime
+from io import StringIO
 import pytest
 import pandas
 from reports import diversification
 
 def test_diversification_generate_report_per_date():
+    input_data = StringIO(
+        "Country,Loan originator,Outstanding principal,Investment platform,Date\n"\
+        "Poland,Sun Finance,50.0,mintos,2020-11-30\n"\
+        "Spain,Creamfinance,75.0,mintos,2020-11-30\n"\
+        "Poland,Creditstar,10.0,mintos,2020-11-30\n"\
+        "Spain,Creamfinance,75.0,mintos,2020-11-30\n"\
+        "Poland,Creditstar,15.0,mintos,2020-11-30\n"\
+    )
+
+    input_data_frame = pandas.read_csv(input_data, parse_dates=['Date'])
+
     input_overall_report = {
         datetime.date(2020, 11, 30): {
+            'Data': input_data_frame,
             'DataByCountry': pandas.DataFrame({
                 'Outstanding principal': {'Spain': 150.0, 'Poland': 75.0},
                 'Percentage': {'Spain': 0.666, 'Poland': 0.333}
