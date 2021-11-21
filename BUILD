@@ -27,6 +27,7 @@ py_library(
         ":logger",
         "//marketplace",
         "//reports",
+        "//datacollection",
         requirement("pandas"),
         requirement("xlrd"),
         requirement("openpyxl"),

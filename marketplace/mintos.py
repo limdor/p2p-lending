@@ -1,8 +1,8 @@
 import re
 from marketplace import marketplace
 
-MARKETPLACE_NAME = 'mintos'
-MARKETPLACE_META_DATA = marketplace.Marketplace(
+META_DATA = marketplace.Marketplace(
+    name='mintos',
     filename_regexp=re.compile(
         r'(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})-current-investments.xlsx'
     ),
