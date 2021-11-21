@@ -1,5 +1,7 @@
 import datetime
 from unittest.mock import patch
+from marketplace import mintos
+from marketplace import iuvo
 from p2p import get_latest_report_date, filter_investment_files_by_newest_date, \
     read_marketplace_files
 
@@ -31,7 +33,7 @@ def test_read_marketplace_files_iuvo(os_walk):
         datetime.date.fromisoformat("2020-11-30"): "/iuvo/MyInvestments-20201130.xlsx",
         datetime.date.fromisoformat("2020-12-31"): "/iuvo/MyInvestments-20201231.xlsx",
     }
-    assert output_data == read_marketplace_files("dummy/folder", "iuvo")
+    assert output_data == read_marketplace_files("dummy/folder", iuvo.META_DATA)
 
 
 @patch('p2p.os.walk')
@@ -49,7 +51,7 @@ def test_read_marketplace_files_mintos(os_walk):
         datetime.date.fromisoformat("2020-11-30"): "/mintos/20201130-current-investments.xlsx",
         datetime.date.fromisoformat("2021-06-30"): "/mintos/20210630-current-investments.xlsx",
     }
-    assert output_data == read_marketplace_files("dummy/folder", "mintos")
+    assert output_data == read_marketplace_files("dummy/folder", mintos.META_DATA)
 
 
 def test_filter_investment_files_by_newest_date():

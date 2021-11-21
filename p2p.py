@@ -11,30 +11,25 @@ from logger import logger
 
 RELEVANT_COLUMNS = [marketplace.COUNTRY, marketplace.LOAN_ORIGINATOR, marketplace.OUTSTANDING_PRINCIPAL]
 DATA_DIRECTORY = os.path.join('.', 'data')
-PLATFORM_SPECIFIC_DATA = {
-    iuvo.MARKETPLACE_NAME: iuvo.MARKETPLACE_META_DATA,
-    mintos.MARKETPLACE_NAME: mintos.MARKETPLACE_META_DATA,
-}
 
 
 def get_latest_report_date(marketplace_files):
     return max(marketplace_files.keys())
 
 
-def read_marketplace_files(data_directory, marketplace_name):
+def read_marketplace_files(data_directory, investment_platform):
     marketplace_files = {}
-    for root, _, files in os.walk(os.path.join(data_directory, marketplace_name)):
+    for root, _, files in os.walk(os.path.join(data_directory, investment_platform.name)):
         for investment_snapshot in files:
-            match = PLATFORM_SPECIFIC_DATA[marketplace_name].filename_regexp.search(investment_snapshot)
+            match = investment_platform.filename_regexp.search(investment_snapshot)
             if match:
                 report_date = datetime.date.fromisoformat(f"{match.group('year')}-{match.group('month')}-{match.group('day')}")
                 marketplace_files[report_date] = os.path.join(root, investment_snapshot)
     return marketplace_files
 
 
-def collect_investment_data(data_directory):
+def collect_investment_data(data_directory, investment_platforms):
     data_files = {}
-    investment_platforms = [entry.name for entry in os.scandir(data_directory) if entry.is_dir()]
     for investment_platform in investment_platforms:
         data_files[investment_platform] = read_marketplace_files(data_directory, investment_platform)
     return data_files
@@ -52,22 +47,22 @@ def aggregate_investment_data(investment_files):
 def get_dataframe_from_excel(file_path, date, investment_platform):
     df = pandas.read_excel(
         file_path,
-        header=PLATFORM_SPECIFIC_DATA[investment_platform].header,
-        skipfooter=PLATFORM_SPECIFIC_DATA[investment_platform].skipfooter,
-        usecols=lambda column: column in PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping.keys(
-        ) and PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping[column] in RELEVANT_COLUMNS
+        header=investment_platform.header,
+        skipfooter=investment_platform.skipfooter,
+        usecols=lambda column: column in investment_platform.column_mapping.keys(
+        ) and investment_platform.column_mapping[column] in RELEVANT_COLUMNS
     ).rename(
-        columns=PLATFORM_SPECIFIC_DATA[investment_platform].column_mapping)
-    if PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename:
+        columns=investment_platform.column_mapping)
+    if investment_platform.originators_rename:
         df[marketplace.LOAN_ORIGINATOR].replace(
-            PLATFORM_SPECIFIC_DATA[investment_platform].originators_rename, inplace=True)
-    df[marketplace.INVESTMENT_PLATFORM], df[marketplace.FILE_DATE] = investment_platform, date
+            investment_platform.originators_rename, inplace=True)
+    df[marketplace.INVESTMENT_PLATFORM], df[marketplace.FILE_DATE] = investment_platform.name, date
     return df
 
 
 def print_investment_data(investment_data):
     for investment_platform, files in investment_data.items():
-        logger.info(f"Investment platform: {PLATFORM_SPECIFIC_DATA[investment_platform].display_name}")
+        logger.info(f"Investment platform: {investment_platform.display_name}")
         for date, file_path in sorted(files.items(), key=lambda item: item[0]):
             logger.info(f'  {date}: {file_path}')
 
@@ -92,7 +87,7 @@ def main(show_past_investments):
     logger.info("***********************************")
     logger.info("**** Collecting available data ****")
     logger.info("***********************************")
-    all_investment_files = collect_investment_data(DATA_DIRECTORY)
+    all_investment_files = collect_investment_data(DATA_DIRECTORY, [mintos.META_DATA, iuvo.META_DATA])
     if not show_past_investments:
         investment_files = filter_investment_files_by_newest_date(all_investment_files)
     else:
@@ -110,13 +105,13 @@ def main(show_past_investments):
     logger.info("*******************************")
     for investment_platform, files in investment_files.items():
         logger.info("|")
-        logger.info(f" --- Platform : {PLATFORM_SPECIFIC_DATA[investment_platform].display_name} ---")
+        logger.info(f" --- Platform : {investment_platform.display_name} ---")
         newest_date = get_latest_report_date(files)
         for date in sorted(files.keys()):
             if show_past_investments or date == newest_date:
                 df_group_by_date_platform = df_investiments[
                     (df_investiments[marketplace.FILE_DATE] == date) &
-                    (df_investiments[marketplace.INVESTMENT_PLATFORM] == investment_platform)]
+                    (df_investiments[marketplace.INVESTMENT_PLATFORM] == investment_platform.name)]
                 logger.info('Investments by country:')
                 df_group_by_country = df_group_by_date_platform.groupby([marketplace.COUNTRY]).sum()
                 logger.info(df_group_by_country.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False))
