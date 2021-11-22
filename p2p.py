@@ -6,15 +6,10 @@ from marketplace import marketplace
 from reports import diversification
 from reports import overall
 from logger import logger
-from datacollection.datacollection import collect_investment_data
-
+from datacollection import datacollection
 
 RELEVANT_COLUMNS = [marketplace.COUNTRY, marketplace.LOAN_ORIGINATOR, marketplace.OUTSTANDING_PRINCIPAL]
 DATA_DIRECTORY = os.path.join('.', 'data')
-
-
-def get_latest_report_date(marketplace_files):
-    return max(marketplace_files.keys())
 
 
 def aggregate_investment_data(investment_files):
@@ -49,16 +44,6 @@ def print_investment_data(investment_data):
             logger.info(f'  {date}: {file_path}')
 
 
-def filter_investment_files_by_newest_date(investment_data):
-    filtered_files = {}
-    for investment_platform, files in investment_data.items():
-        newest_date = get_latest_report_date(files)
-        filtered_files[investment_platform] = {
-            key: value for (key, value) in files.items() if key == newest_date
-        }
-    return filtered_files
-
-
 def main(show_past_investments):
 
     if show_past_investments:
@@ -69,9 +54,9 @@ def main(show_past_investments):
     logger.info("***********************************")
     logger.info("**** Collecting available data ****")
     logger.info("***********************************")
-    all_investment_files = collect_investment_data(DATA_DIRECTORY, [mintos.META_DATA, iuvo.META_DATA])
+    all_investment_files = datacollection.collect_investment_data(DATA_DIRECTORY, [mintos.META_DATA, iuvo.META_DATA])
     if not show_past_investments:
-        investment_files = filter_investment_files_by_newest_date(all_investment_files)
+        investment_files = datacollection.filter_investment_files_by_newest_date(all_investment_files)
     else:
         investment_files = all_investment_files.copy()
     print_investment_data(investment_files)
@@ -88,7 +73,7 @@ def main(show_past_investments):
     for investment_platform, files in investment_files.items():
         logger.info("|")
         logger.info(f" --- Platform : {investment_platform.display_name} ---")
-        newest_date = get_latest_report_date(files)
+        newest_date = datacollection.get_latest_report_date(files)
         for date in sorted(files.keys()):
             if show_past_investments or date == newest_date:
                 df_group_by_date_platform = df_investiments[

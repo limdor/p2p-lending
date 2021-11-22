@@ -13,7 +13,18 @@ def read_marketplace_files(data_directory, investment_platform):
 
 
 def collect_investment_data(data_directory, investment_platforms):
-    data_files = {}
-    for investment_platform in investment_platforms:
-        data_files[investment_platform] = read_marketplace_files(data_directory, investment_platform)
-    return data_files
+    return {investment_platform: read_marketplace_files(data_directory, investment_platform) for investment_platform in investment_platforms}
+
+
+def get_latest_report_date(marketplace_files):
+    return max(marketplace_files.keys())
+
+
+def filter_investment_files_by_newest_date(investment_data):
+    filtered_files = {}
+    for investment_platform, files in investment_data.items():
+        newest_date = get_latest_report_date(files)
+        filtered_files[investment_platform] = {
+            key: value for (key, value) in files.items() if key == newest_date
+        }
+    return filtered_files
