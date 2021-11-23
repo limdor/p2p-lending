@@ -6,10 +6,6 @@ from marketplace import marketplace
 from . import calculator
 
 
-def compute_total_investment(investment_raw_data):
-    return investment_raw_data[marketplace.OUTSTANDING_PRINCIPAL].sum()
-
-
 def generate_report_per_date(df_investiments):
     overall_report_per_date = defaultdict(datetime.datetime)
     for date in sorted(df_investiments[marketplace.FILE_DATE].unique()):
