@@ -1,4 +1,11 @@
+import hashlib
 from marketplace import marketplace
+
+
+def get_raw_data_hash(investment_raw_data):
+    string_unique_dates = ''.join([ str(date) for date in investment_raw_data[marketplace.FILE_DATE].unique()])
+    return hashlib.sha1(
+        string_unique_dates.encode("utf-8")).hexdigest()
 
 
 def get_total_investment(investment_raw_data):
