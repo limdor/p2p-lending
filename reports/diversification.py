@@ -13,6 +13,7 @@ def generate_report_per_date(overall_report):
 def generate_report(date, overall_data):
     diversification_report = {}
     diversification_report['reportId'] = date
+    diversification_report['RawDataHash'] = calculator.get_raw_data_hash(overall_data['Data'])
     diversification_report['overallInvestment'] = calculator.get_total_investment(overall_data['Data'])
     diversification_report['loanParts'] = calculator.get_number_loan_parts(overall_data['Data'])
     diversification_report['countryStatistics'] = {
@@ -33,6 +34,7 @@ def print_report_per_date(diversification_report_per_date):
     logger.info("*********************************")
     for date, report in diversification_report_per_date.items():
         logger.info(f"Investments diversification on {date}")
+        logger.info(f"|- Raw data hash: {report['RawDataHash']}")
         logger.info(f"|- Diversification Investment: {report['overallInvestment']:.2f}€")
         logger.info(f"|- The portfolio consists of at least 100 different loan parts: {report['loanParts']:d}")
         logger.info("|- Statistics by Country:")
