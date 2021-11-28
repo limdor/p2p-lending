@@ -19,6 +19,7 @@ def test_diversification_generate_report_per_date():
     expected_output = {
         datetime.date(2020, 11, 30): {
             'reportId': datetime.date(2020, 11, 30),
+            'RawDataHash': '3a3cb61d741e8bb3c81d08c0aaf3281f8ef65d8d',
             'countryStatistics': {
                 'investmentOneCountry': pytest.approx(66.66, abs=1e-2),
                 'investmentThreeCountries': 100.0

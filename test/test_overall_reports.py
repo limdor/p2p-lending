@@ -20,6 +20,7 @@ def test_overall_generate_report_per_date():
     expected_overall_report_per_date = {
         datetime.date(2020, 11, 30): {
             'Data': input_data_frame[input_data_frame.index.isin([0,1,2,3,4])],
+            'RawDataHash': '3a3cb61d741e8bb3c81d08c0aaf3281f8ef65d8d',
             'DataByCountry': pandas.DataFrame({
                 'Outstanding principal': {'Spain': 150.0, 'Poland': 75.0},
                 'Percentage': {'Spain': 0.666, 'Poland': 0.333}
@@ -37,6 +38,7 @@ def test_overall_generate_report_per_date():
         },
         datetime.date(2021, 6, 30): {
             'Data': input_data_frame[input_data_frame.index.isin([5])],
+            'RawDataHash': '819d1f9a5588ac7a53ec287231eaaca4153d1f2f',
             'DataByCountry': pandas.DataFrame({
                 'Outstanding principal': {'Spain': 15.0},
                 'Percentage': {'Spain': 1.000}
