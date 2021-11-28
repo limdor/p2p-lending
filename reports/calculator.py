@@ -1,4 +1,23 @@
+import hashlib
 from marketplace import marketplace
+
+
+def string_unique_dates(investment_raw_data):
+    return ','.join(sorted(investment_raw_data[marketplace.FILE_DATE].dt.strftime('%Y-%m-%d').unique()))
+
+
+def string_unique_countries(investment_raw_data):
+    return ','.join(sorted(investment_raw_data[marketplace.COUNTRY].unique()))
+
+
+def string_unique_originators(investment_raw_data):
+    return ','.join(sorted(investment_raw_data[marketplace.LOAN_ORIGINATOR].unique()))
+
+
+def get_raw_data_hash(investment_raw_data):
+    string_to_hash = string_unique_dates(investment_raw_data) +\
+        string_unique_countries(investment_raw_data) + string_unique_originators(investment_raw_data)
+    return hashlib.sha1(string_to_hash.encode("utf-8")).hexdigest()
 
 
 def get_total_investment(investment_raw_data):
