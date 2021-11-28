@@ -16,15 +16,24 @@ def collect_investment_data(data_directory, investment_platforms):
     return {investment_platform: read_marketplace_files(data_directory, investment_platform) for investment_platform in investment_platforms}
 
 
-def get_latest_report_date(marketplace_files):
-    return max(marketplace_files.keys())
+def get_latest_common_date(investment_data):
+    common_dates = None
+    for _, files in investment_data.items():
+        if common_dates:
+            common_dates = common_dates & files.keys()
+        else:
+            common_dates = files.keys()
+    return max(common_dates)
 
 
-def filter_investment_files_by_newest_date(investment_data):
+def get_latest_date(investment_data):
+    return max(max(files.keys()) for _, files in investment_data.items())
+
+
+def filter_investment_files_by_date(investment_data, date):
     filtered_files = {}
     for investment_platform, files in investment_data.items():
-        newest_date = get_latest_report_date(files)
         filtered_files[investment_platform] = {
-            key: value for (key, value) in files.items() if key == newest_date
+            key: value for (key, value) in files.items() if key == date
         }
     return filtered_files
