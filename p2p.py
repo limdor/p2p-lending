@@ -45,25 +45,28 @@ def print_investment_data(investment_data):
 
 
 def main(show_past_investments):
+    investment_files = datacollection.collect_investment_data(DATA_DIRECTORY, [mintos.META_DATA, iuvo.META_DATA])
 
     if show_past_investments:
         logger.info("Report containing all records")
     else:
         logger.info("Report containing only latest data")
+        latest_common_date = datacollection.get_latest_common_date(investment_files)
+        latest_date = datacollection.get_latest_date(investment_files)
+        investment_files = datacollection.filter_investment_files_by_date(investment_files, latest_common_date)
+        if latest_common_date != latest_date:
+            logger.info(f"The newest date of a investment file across all platforms is from {latest_date}")
+            logger.info(f"However, the date that is common for all platforms is {latest_common_date}")
+            logger.info("For the moment the latest common date will be used, in the future the user will choose")
 
-    logger.info("***********************************")
-    logger.info("**** Collecting available data ****")
-    logger.info("***********************************")
-    all_investment_files = datacollection.collect_investment_data(DATA_DIRECTORY, [mintos.META_DATA, iuvo.META_DATA])
-    if not show_past_investments:
-        investment_files = datacollection.filter_investment_files_by_newest_date(all_investment_files)
-    else:
-        investment_files = all_investment_files.copy()
+    logger.info("*********************")
+    logger.info("**** Loaded data ****")
+    logger.info("*********************")
     print_investment_data(investment_files)
 
-    logger.info("***********************************")
+    logger.info("**********************************")
     logger.info("**** Aggregate available data ****")
-    logger.info("***********************************")
+    logger.info("**********************************")
     df_investiments = aggregate_investment_data(investment_files)
     logger.info('TODO: function to summarise information')
 
@@ -73,9 +76,8 @@ def main(show_past_investments):
     for investment_platform, files in investment_files.items():
         logger.info("|")
         logger.info(f" --- Platform : {investment_platform.display_name} ---")
-        newest_date = datacollection.get_latest_report_date(files)
         for date in sorted(files.keys()):
-            if show_past_investments or date == newest_date:
+            if show_past_investments or date == latest_common_date:
                 df_group_by_date_platform = df_investiments[
                     (df_investiments[marketplace.FILE_DATE] == date) &
                     (df_investiments[marketplace.INVESTMENT_PLATFORM] == investment_platform.name)]
