@@ -91,5 +91,5 @@ def main(show_past_investments):
     overall_report = overall.generate_report_per_date(df_investiments)
     overall.print_report_per_date(overall_report)
 
-    diversification_report_per_date = diversification.generate_report_per_date(overall_report)
+    diversification_report_per_date = diversification.generate_report_per_date(df_investiments)
     diversification.print_report_per_date(diversification_report_per_date)
