@@ -7,7 +7,7 @@ from . import calculator
 
 def generate_report_per_date(df_investiments):
     diversification_report_per_date = {}
-    for date in sorted(df_investiments[marketplace.FILE_DATE].unique()):
+    for date in df_investiments[marketplace.FILE_DATE].unique():
         formated_date = datetime.datetime.date(pandas.to_datetime(date))
         diversification_report_per_date[formated_date] = generate_report(
             formated_date, df_investiments[df_investiments[marketplace.FILE_DATE] == date])
@@ -36,7 +36,7 @@ def print_report_per_date(diversification_report_per_date):
     logger.info("*********************************")
     logger.info("**** Diversification reports ****")
     logger.info("*********************************")
-    for date, report in diversification_report_per_date.items():
+    for date, report in sorted(diversification_report_per_date.items()):
         logger.info(f"Investments diversification on {date}")
         logger.info(f"|- Diversification Investment: {report['overallInvestment']:.2f}€")
         logger.info(f"|- The portfolio consists of at least 100 different loan parts: {report['loanParts']:d}")
