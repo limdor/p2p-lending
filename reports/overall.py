@@ -1,5 +1,4 @@
 import datetime
-from collections import defaultdict
 import pandas
 from logger import logger
 from marketplace import marketplace
@@ -7,8 +6,8 @@ from . import calculator
 
 
 def generate_report_per_date(df_investiments):
-    overall_report_per_date = defaultdict(datetime.datetime)
-    for date in sorted(df_investiments[marketplace.FILE_DATE].unique()):
+    overall_report_per_date = {}
+    for date in df_investiments[marketplace.FILE_DATE].unique():
         overall_report_per_date[datetime.datetime.date(pandas.to_datetime(date))] = generate_report(
             df_investiments[df_investiments[marketplace.FILE_DATE] == date])
 
@@ -30,7 +29,7 @@ def print_report_per_date(overall_report):
     logger.info("*****************************")
     logger.info("**** Overall Investments ****")
     logger.info("*****************************")
-    for date, overall_data in overall_report.items():
+    for date, overall_data in sorted(overall_report.items()):
         logger.info(f"Overall Investments on {date}")
         logger.info(f"|- Overall Investment: {overall_data['TotalInvestment']:.2f}€")
         logger.info("|- Investment by Country")
