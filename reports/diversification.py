@@ -1,5 +1,4 @@
 import datetime
-from collections import defaultdict
 import pandas
 from logger import logger
 from marketplace import marketplace
@@ -7,7 +6,7 @@ from . import calculator
 
 
 def generate_report_per_date(df_investiments):
-    diversification_report_per_date = defaultdict(datetime.datetime)
+    diversification_report_per_date = {}
     for date in sorted(df_investiments[marketplace.FILE_DATE].unique()):
         formated_date = datetime.datetime.date(pandas.to_datetime(date))
         diversification_report_per_date[formated_date] = generate_report(
