@@ -33,7 +33,7 @@ def get_dataframe_from_excel(file_path, date, investment_platform):
     if investment_platform.originators_rename:
         df[marketplace.LOAN_ORIGINATOR].replace(
             investment_platform.originators_rename, inplace=True)
-    df[marketplace.INVESTMENT_PLATFORM], df[marketplace.FILE_DATE] = investment_platform.name, date
+    df[marketplace.INVESTMENT_PLATFORM], df[marketplace.FILE_DATE] = investment_platform.name, pandas.Timestamp(date, unit='D')
     return df
 
 
@@ -79,7 +79,7 @@ def main(show_past_investments):
         for date in sorted(files.keys()):
             if show_past_investments or date == latest_common_date:
                 df_group_by_date_platform = df_investiments[
-                    (df_investiments[marketplace.FILE_DATE] == date) &
+                    (df_investiments[marketplace.FILE_DATE] == pandas.Timestamp(date, unit='D')) &
                     (df_investiments[marketplace.INVESTMENT_PLATFORM] == investment_platform.name)]
                 logger.info('Investments by country:')
                 df_group_by_country = df_group_by_date_platform.groupby([marketplace.COUNTRY]).sum()

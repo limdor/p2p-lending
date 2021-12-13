@@ -8,9 +8,24 @@ INPUT_RAW_DATA = pandas.read_csv(StringIO(
     "Poland,Sun Finance,50.0,mintos,2020-11-30\n"\
     "Spain,Creamfinance,75.0,mintos,2020-11-30\n"\
     "Poland,Creditstar,10.0,mintos,2020-11-30\n"\
-    "Spain,Creamfinance,75.0,mintos,2020-11-30\n"\
-    "Poland,Creditstar,15.0,mintos,2020-11-30\n"\
+    "Spain,Creamfinance,75.0,mintos,2020-11-29\n"\
+    "Poland,Creditstar,15.0,mintos,2020-11-29\n"\
     ), parse_dates=['Date'])
+
+
+def test_string_unique_dates():
+    expected_output = '2020-11-29,2020-11-30'
+    assert expected_output == calculator.string_unique_dates(INPUT_RAW_DATA)
+
+
+def test_string_unique_countries():
+    expected_output = 'Poland,Spain'
+    assert expected_output == calculator.string_unique_countries(INPUT_RAW_DATA)
+
+
+def test_string_unique_originators():
+    expected_output = 'Creamfinance,Creditstar,Sun Finance'
+    assert expected_output == calculator.string_unique_originators(INPUT_RAW_DATA)
 
 
 def test_get_total_investment():
