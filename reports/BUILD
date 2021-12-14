@@ -11,6 +11,24 @@ pytest_test(
     ],
 )
 
+pytest_test(
+    name = "diversification_test",
+    srcs = ["diversification_test.py"],
+    deps = [
+        ":reports",
+        requirement("pandas"),
+    ],
+)
+
+pytest_test(
+    name = "overall_test",
+    srcs = ["overall_test.py"],
+    deps = [
+        ":reports",
+        requirement("pandas"),
+    ],
+)
+
 py_library(
     name = "reports",
     srcs = [
