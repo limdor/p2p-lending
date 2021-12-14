@@ -46,8 +46,8 @@ app.layout = dash.html.Div(
 )
 
 
-def parse_contents(contents, filename):
-    content_type, content_string = contents.split(',')
+def parse_contents(contents, _):
+    _, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
     # Assume that the user uploaded a CSV file
     return pandas.read_csv(
