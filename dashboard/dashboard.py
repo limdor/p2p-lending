@@ -1,6 +1,6 @@
 import base64
-import dash
 import io
+import dash
 import pandas
 import plotly.express
 
