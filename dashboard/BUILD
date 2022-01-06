@@ -7,5 +7,6 @@ py_binary(
         requirement("dash"),
         requirement("pandas"),
         requirement("plotly"),
+        "//marketplace",
     ],
 )

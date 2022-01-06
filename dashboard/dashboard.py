@@ -3,6 +3,7 @@ import io
 import dash
 import pandas
 import plotly.express
+from marketplace import marketplace
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -66,11 +67,12 @@ def update_output(contents, filename):
 
     df = parse_contents(contents, filename)
 
-    df2 = df.groupby(['Investment platform', 'Loan originator'], as_index=False).sum()
+    df2 = df.groupby(
+        [marketplace.INVESTMENT_PLATFORM, marketplace.LOAN_ORIGINATOR], as_index=False).sum()
 
     fig = plotly.express.sunburst(
         df2,
-        path=['Investment platform', 'Loan originator'],
+        path=[marketplace.INVESTMENT_PLATFORM, marketplace.LOAN_ORIGINATOR],
         values='Outstanding principal',
         labels=''
     )
@@ -81,11 +83,13 @@ def update_output(contents, filename):
         margin=dict(t=0, l=0, r=0, b=0)
     )
 
-    df3 = df.groupby(['Country', 'Investment platform', 'Loan originator'], as_index=False).sum()
+    df3 = df.groupby(
+        [marketplace.COUNTRY, marketplace.INVESTMENT_PLATFORM, marketplace.LOAN_ORIGINATOR], 
+        as_index=False).sum()
 
     fig2 = plotly.express.sunburst(
         df3,
-        path=['Country', 'Investment platform', 'Loan originator'],
+        path=[marketplace.COUNTRY, marketplace.INVESTMENT_PLATFORM, marketplace.LOAN_ORIGINATOR],
         values='Outstanding principal',
         labels=''
     )
