@@ -10,6 +10,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = dash.html.Div(
     [
+        dash.dcc.Store(id='investment-raw-data'),
         dash.html.Div([dash.html.H1('Monthly Report')]),
         dash.html.Div(
             [
@@ -46,28 +47,32 @@ app.layout = dash.html.Div(
 )
 
 
-def parse_contents(contents, _):
+def parse_excel_fiels(contents, _):
     _, content_string = contents.split(',')
     decoded = base64.b64decode(content_string)
     # Assume that the user uploaded a CSV file
     return pandas.read_csv(
-        io.StringIO(decoded.decode('utf-8')))
+        io.StringIO(decoded.decode('utf-8'))).to_json(orient='split')
+
+
+@app.callback(dash.dependencies.Output('investment-raw-data', 'data'),
+              dash.dependencies.Input('datatable-upload', 'contents'),
+              dash.dependencies.State('datatable-upload', 'filename'))
+def update_output(contents, filename):
+    if contents is None:
+        # PreventUpdate prevents ALL outputs updating
+        raise dash.exceptions.PreventUpdate
+    investment_raw_data = parse_excel_fiels(contents, filename)
+    return investment_raw_data
 
 
 @app.callback(dash.dependencies.Output('piechart-PlatformOriginator', 'figure'),
               dash.dependencies.Output('piechart-CounyryPlatformOriginator', 'figure'),
-              dash.dependencies.Input('datatable-upload', 'contents'),
-              dash.dependencies.State('datatable-upload', 'filename'))
-def update_output(contents, filename):
-
-    if contents is None:
-        # PreventUpdate prevents ALL outputs updating
-        raise dash.exceptions.PreventUpdate
-
-    investment_raw_data = parse_contents(contents, filename)
-    fig1 = charts.piechart_PlatformOriginator(investment_raw_data)
-    fig2 = charts.piechart_CountryPlatformOriginator(investment_raw_data)
-
+              dash.dependencies.Input('investment-raw-data', 'data'))
+def update_graphs(investment_raw_data):
+    investment_raw_dataframe = pandas.read_json(investment_raw_data, orient='split')
+    fig1 = charts.piechart_PlatformOriginator(investment_raw_dataframe)
+    fig2 = charts.piechart_CountryPlatformOriginator(investment_raw_dataframe)
     return fig1, fig2
 
 
