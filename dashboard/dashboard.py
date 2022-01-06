@@ -1,8 +1,12 @@
 import base64
 import io
+import datetime
 import dash
 import pandas
 import charts
+from marketplace import iuvo
+from marketplace import mintos
+import p2p
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -26,6 +30,7 @@ app.layout = dash.html.Div(
                         'borderWidth': '1px', 'borderStyle': 'dashed',
                         'borderRadius': '5px', 'textAlign': 'center', 'margin': '10px'
                     },
+                    multiple=True
                 ),
                 dash.dash_table.DataTable(id='datatable-upload-container'),
             ]),
@@ -47,23 +52,29 @@ app.layout = dash.html.Div(
 )
 
 
-def parse_excel_fiels(contents, _):
-    _, content_string = contents.split(',')
-    decoded = base64.b64decode(content_string)
-    # Assume that the user uploaded a CSV file
-    return pandas.read_csv(
-        io.StringIO(decoded.decode('utf-8'))).to_json(orient='split')
-
-
 @app.callback(dash.dependencies.Output('investment-raw-data', 'data'),
               dash.dependencies.Input('datatable-upload', 'contents'),
               dash.dependencies.State('datatable-upload', 'filename'))
-def update_output(contents, filename):
-    if contents is None:
-        # PreventUpdate prevents ALL outputs updating
+def update_output(list_of_contents, list_of_names):
+    if list_of_contents is None:
         raise dash.exceptions.PreventUpdate
-    investment_raw_data = parse_excel_fiels(contents, filename)
-    return investment_raw_data
+
+    list_dataframes = []
+    for file_name, contents in zip(list_of_names, list_of_contents):
+        _, content_string = contents.split(',')
+        for investment_platform in [mintos.META_DATA, iuvo.META_DATA]:
+            match = investment_platform.filename_regexp.search(file_name)
+            if match:
+                report_date = datetime.date.fromisoformat(f"{match.group('year')}-{match.group('month')}-{match.group('day')}")
+                list_dataframes.append(
+                    p2p.get_dataframe_from_excel(
+                        io.BytesIO(base64.b64decode(content_string)),
+                        report_date,
+                        investment_platform,
+                    )
+                )
+    investment_raw_data = pandas.concat(list_dataframes)
+    return investment_raw_data.to_json(orient='split')
 
 
 @app.callback(dash.dependencies.Output('piechart-PlatformOriginator', 'figure'),

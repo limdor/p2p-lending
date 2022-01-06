@@ -6,6 +6,7 @@ py_binary(
     deps = [
         requirement("dash"),
         ":charts",
+        "//:p2p",
     ],
 )
 
