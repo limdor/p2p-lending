@@ -2,8 +2,7 @@ import base64
 import io
 import dash
 import pandas
-import plotly.express
-from marketplace import marketplace
+import charts
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -32,11 +31,11 @@ app.layout = dash.html.Div(
         dash.html.Div(
             [
                 dash.html.Div(
-                    [dash.dcc.Graph(id='datatable-upload-graph-1')],
+                    [dash.dcc.Graph(id='piechart-PlatformOriginator')],
                     style={'width': '100%'},
                 ),
                 dash.html.Div(
-                    [dash.dcc.Graph(id='datatable-upload-graph-2')],
+                    [dash.dcc.Graph(id='piechart-CounyryPlatformOriginator')],
                     style={'width': '100%'},
                 ),
             ],
@@ -55,8 +54,8 @@ def parse_contents(contents, _):
         io.StringIO(decoded.decode('utf-8')))
 
 
-@app.callback(dash.dependencies.Output('datatable-upload-graph-1', 'figure'),
-              dash.dependencies.Output('datatable-upload-graph-2', 'figure'),
+@app.callback(dash.dependencies.Output('piechart-PlatformOriginator', 'figure'),
+              dash.dependencies.Output('piechart-CounyryPlatformOriginator', 'figure'),
               dash.dependencies.Input('datatable-upload', 'contents'),
               dash.dependencies.State('datatable-upload', 'filename'))
 def update_output(contents, filename):
@@ -65,43 +64,11 @@ def update_output(contents, filename):
         # PreventUpdate prevents ALL outputs updating
         raise dash.exceptions.PreventUpdate
 
-    df = parse_contents(contents, filename)
+    investment_raw_data = parse_contents(contents, filename)
+    fig1 = charts.piechart_PlatformOriginator(investment_raw_data)
+    fig2 = charts.piechart_CountryPlatformOriginator(investment_raw_data)
 
-    df2 = df.groupby(
-        [marketplace.INVESTMENT_PLATFORM, marketplace.LOAN_ORIGINATOR], as_index=False).sum()
-
-    fig = plotly.express.sunburst(
-        df2,
-        path=[marketplace.INVESTMENT_PLATFORM, marketplace.LOAN_ORIGINATOR],
-        values='Outstanding principal',
-        labels=''
-    )
-    fig.update_traces(textinfo="label+percent entry")
-
-    fig.update_layout(
-        grid=dict(columns=1, rows=1),
-        margin=dict(t=0, l=0, r=0, b=0)
-    )
-
-    df3 = df.groupby(
-        [marketplace.COUNTRY, marketplace.INVESTMENT_PLATFORM, marketplace.LOAN_ORIGINATOR], 
-        as_index=False).sum()
-
-    fig2 = plotly.express.sunburst(
-        df3,
-        path=[marketplace.COUNTRY, marketplace.INVESTMENT_PLATFORM, marketplace.LOAN_ORIGINATOR],
-        values='Outstanding principal',
-        labels=''
-    )
-
-    fig2.update_traces(textinfo="label+percent parent")
-
-    fig2.update_layout(
-        grid=dict(columns=1, rows=1),
-        margin=dict(t=0, l=0, r=0, b=0)
-    )
-
-    return fig, fig2
+    return fig1, fig2
 
 
 if __name__ == '__main__':
