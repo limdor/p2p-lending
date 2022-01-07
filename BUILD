@@ -32,7 +32,9 @@ py_library(
         requirement("xlrd"),
         requirement("openpyxl"),
     ],
-    visibility = ["//test:__pkg__"],
+    visibility = [
+        "//visibility:public"
+    ],
 )
 
 py_library(

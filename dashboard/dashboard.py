@@ -1,8 +1,12 @@
 import base64
 import io
+import datetime
 import dash
 import pandas
-import plotly.express
+import charts
+from marketplace import iuvo
+from marketplace import mintos
+import p2p
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -10,6 +14,7 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 app.layout = dash.html.Div(
     [
+        dash.dcc.Store(id='investment-raw-data'),
         dash.html.Div([dash.html.H1('Monthly Report')]),
         dash.html.Div(
             [
@@ -25,17 +30,18 @@ app.layout = dash.html.Div(
                         'borderWidth': '1px', 'borderStyle': 'dashed',
                         'borderRadius': '5px', 'textAlign': 'center', 'margin': '10px'
                     },
+                    multiple=True
                 ),
                 dash.dash_table.DataTable(id='datatable-upload-container'),
             ]),
         dash.html.Div(
             [
                 dash.html.Div(
-                    [dash.dcc.Graph(id='datatable-upload-graph-1')],
+                    [dash.dcc.Graph(id='piechart-PlatformOriginator')],
                     style={'width': '100%'},
                 ),
                 dash.html.Div(
-                    [dash.dcc.Graph(id='datatable-upload-graph-2')],
+                    [dash.dcc.Graph(id='piechart-CounyryPlatformOriginator')],
                     style={'width': '100%'},
                 ),
             ],
@@ -46,58 +52,39 @@ app.layout = dash.html.Div(
 )
 
 
-def parse_contents(contents, _):
-    _, content_string = contents.split(',')
-    decoded = base64.b64decode(content_string)
-    # Assume that the user uploaded a CSV file
-    return pandas.read_csv(
-        io.StringIO(decoded.decode('utf-8')))
-
-
-@app.callback(dash.dependencies.Output('datatable-upload-graph-1', 'figure'),
-              dash.dependencies.Output('datatable-upload-graph-2', 'figure'),
+@app.callback(dash.dependencies.Output('investment-raw-data', 'data'),
               dash.dependencies.Input('datatable-upload', 'contents'),
               dash.dependencies.State('datatable-upload', 'filename'))
-def update_output(contents, filename):
-
-    if contents is None:
-        # PreventUpdate prevents ALL outputs updating
+def update_output(list_of_contents, list_of_names):
+    if list_of_contents is None:
         raise dash.exceptions.PreventUpdate
 
-    df = parse_contents(contents, filename)
+    list_dataframes = []
+    for file_name, contents in zip(list_of_names, list_of_contents):
+        _, content_string = contents.split(',')
+        for investment_platform in [mintos.META_DATA, iuvo.META_DATA]:
+            match = investment_platform.filename_regexp.search(file_name)
+            if match:
+                report_date = datetime.date.fromisoformat(f"{match.group('year')}-{match.group('month')}-{match.group('day')}")
+                list_dataframes.append(
+                    p2p.get_dataframe_from_excel(
+                        io.BytesIO(base64.b64decode(content_string)),
+                        report_date,
+                        investment_platform,
+                    )
+                )
+    investment_raw_data = pandas.concat(list_dataframes)
+    return investment_raw_data.to_json(orient='split')
 
-    df2 = df.groupby(['Investment platform', 'Loan originator'], as_index=False).sum()
 
-    fig = plotly.express.sunburst(
-        df2,
-        path=['Investment platform', 'Loan originator'],
-        values='Outstanding principal',
-        labels=''
-    )
-    fig.update_traces(textinfo="label+percent entry")
-
-    fig.update_layout(
-        grid=dict(columns=1, rows=1),
-        margin=dict(t=0, l=0, r=0, b=0)
-    )
-
-    df3 = df.groupby(['Country', 'Investment platform', 'Loan originator'], as_index=False).sum()
-
-    fig2 = plotly.express.sunburst(
-        df3,
-        path=['Country', 'Investment platform', 'Loan originator'],
-        values='Outstanding principal',
-        labels=''
-    )
-
-    fig2.update_traces(textinfo="label+percent parent")
-
-    fig2.update_layout(
-        grid=dict(columns=1, rows=1),
-        margin=dict(t=0, l=0, r=0, b=0)
-    )
-
-    return fig, fig2
+@app.callback(dash.dependencies.Output('piechart-PlatformOriginator', 'figure'),
+              dash.dependencies.Output('piechart-CounyryPlatformOriginator', 'figure'),
+              dash.dependencies.Input('investment-raw-data', 'data'))
+def update_graphs(investment_raw_data):
+    investment_raw_dataframe = pandas.read_json(investment_raw_data, orient='split')
+    fig1 = charts.piechart_PlatformOriginator(investment_raw_dataframe)
+    fig2 = charts.piechart_CountryPlatformOriginator(investment_raw_dataframe)
+    return fig1, fig2
 
 
 if __name__ == '__main__':
