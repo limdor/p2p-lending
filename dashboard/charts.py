@@ -17,15 +17,15 @@ def piechart(investment_raw_data, group_by):
     return fig
 
 
-def piechart_PlatformOriginator(investment_raw_data):
+def piechart_OriginatorCountry(investment_raw_data):
     return piechart(
         investment_raw_data,
-        [marketplace.INVESTMENT_PLATFORM, marketplace.LOAN_ORIGINATOR]
+        [marketplace.LOAN_ORIGINATOR, marketplace.COUNTRY]
     )
 
 
-def piechart_CountryPlatformOriginator(investment_raw_data):
+def piechart_CountryOriginator(investment_raw_data):
     return piechart(
         investment_raw_data,
-        [marketplace.COUNTRY, marketplace.INVESTMENT_PLATFORM, marketplace.LOAN_ORIGINATOR]
+        [marketplace.COUNTRY, marketplace.LOAN_ORIGINATOR]
     )

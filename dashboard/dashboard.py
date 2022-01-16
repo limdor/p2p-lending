@@ -166,9 +166,9 @@ def update_output(list_of_contents, list_of_names):
               dash.dependencies.Input('investment-raw-data', 'data'))
 def update_graphs(investment_raw_data):
     investment_raw_dataframe = pandas.read_json(investment_raw_data, orient='split')
-    fig1 = charts.piechart_PlatformOriginator(investment_raw_dataframe)
+    fig1 = charts.piechart_OriginatorCountry(investment_raw_dataframe)
     fig2 = tables.table_DataByPlatform(investment_raw_dataframe)
-    fig3 = charts.piechart_CountryPlatformOriginator(investment_raw_dataframe)
+    fig3 = charts.piechart_CountryOriginator(investment_raw_dataframe)
     fig4 = tables.table_DataByCountry(investment_raw_dataframe)
     fig5 = tables.table_AllRawData(investment_raw_dataframe)
     return fig1, fig2, fig3, fig4, fig5
