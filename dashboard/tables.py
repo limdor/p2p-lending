@@ -36,8 +36,8 @@ def table_DataGrouped(investment_raw_data, group_by):
     return plotly.graph_objects.Figure(data=table)
 
 
-def table_DataByPlatform(investment_raw_data):
-    return table_DataGrouped(investment_raw_data, [marketplace.INVESTMENT_PLATFORM])
+def table_DataByOriginator(investment_raw_data):
+    return table_DataGrouped(investment_raw_data, [marketplace.LOAN_ORIGINATOR])
 
 
 def table_DataByCountry(investment_raw_data):
