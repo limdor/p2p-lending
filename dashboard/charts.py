@@ -10,7 +10,8 @@ def piechart(investment_raw_data, group_by):
         investment_grouped_data,
         path=group_by,
         values='Outstanding principal',
-        labels='')
+        labels="",
+        maxdepth=3)
     fig.update_traces(
         textinfo="label+percent entry",
         hovertemplate = "%{value:,.2f}€")
@@ -21,14 +22,20 @@ def piechart(investment_raw_data, group_by):
 
 
 def piechart_OriginatorCountry(investment_raw_data):
+    modified_investment_raw_data = investment_raw_data.filter([marketplace.OUTSTANDING_PRINCIPAL, marketplace.LOAN_ORIGINATOR, marketplace.COUNTRY])
+    modified_investment_raw_data['Different Originators'] = f"{investment_raw_data[marketplace.OUTSTANDING_PRINCIPAL].sum():,.2f}€<br>"\
+        f"{len(set(investment_raw_data[marketplace.LOAN_ORIGINATOR].to_list()))} originators"
     return piechart(
-        investment_raw_data,
-        [marketplace.LOAN_ORIGINATOR, marketplace.COUNTRY]
+        modified_investment_raw_data,
+        ['Different Originators', marketplace.LOAN_ORIGINATOR, marketplace.COUNTRY]
     )
 
 
 def piechart_CountryOriginator(investment_raw_data):
+    modified_investment_raw_data = investment_raw_data.filter([marketplace.OUTSTANDING_PRINCIPAL, marketplace.COUNTRY, marketplace.LOAN_ORIGINATOR])
+    modified_investment_raw_data['Different Countries'] = f"{investment_raw_data[marketplace.OUTSTANDING_PRINCIPAL].sum():,.2f}€<br>"\
+        f"{len(set(investment_raw_data[marketplace.COUNTRY].to_list()))} countries"
     return piechart(
-        investment_raw_data,
-        [marketplace.COUNTRY, marketplace.LOAN_ORIGINATOR]
+        modified_investment_raw_data,
+        ['Different Countries', marketplace.COUNTRY, marketplace.LOAN_ORIGINATOR]
     )
