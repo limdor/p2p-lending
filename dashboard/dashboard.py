@@ -15,120 +15,177 @@ external_stylesheets = [
     {
         'href': 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css',
         'rel': 'stylesheet',
-        'integrity': 'sha384-Uu6IeWbM+gzNVXJcM9XV3SohHtmWE+3VGi496jvgX1jyvDTXfdK+rfZc8C1Aehk5',
-        'crossorigin': 'anonymous'
-    },
-    {
-        'href': 'https://unpkg.com/purecss@2.0.6/build/grids-responsive-min.css',
-        'rel': 'stylesheet',
+        'integrity': 'sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO',
+        'crossorigin': "anonymous"
     }
 ]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+app.css.config.serve_locally = True
 
 app.layout = dash.html.Div(
     [
-        dash.dcc.Store(id='investment-raw-data'),
         dash.html.Div(
             [
-                dash.html.H1(
-                    'P2P-LENDING',
-                    style={'color':'#4b4b4b'},
-                ),
-                dash.html.H2(
-                    'Monthly Report',
-                )
-            ],
-            className='header',
-            style={
-                'border-bottom': '1px solid #eee',
-                'text-align': 'center'
-                },
-            ),
-        dash.html.Div(
-            [
-                dash.dcc.Upload(
-                    id='datatable-upload',
-                    children=dash.html.Div(
-                        [
-                            dash.html.A('Drop/Upload Files')
-                        ]),
-                    style={
-                        'width': '100%',
-                        'height': '60px',
-                        'textAlign': 'center',
-                        'lineHeight': '60px',
-                        'margin': '10px',
-                        'box-shadow': 'rgba(3, 102, 214, 0.3) 0px 0px 0px 3px',
-                        },
-                    multiple=True
-                ),
-                dash.dash_table.DataTable(id='datatable-upload-container'),
-            ],
-            style={
-                'border-bottom': '1px solid #eee',
-                },
-            ),
-        dash.html.Div(
-            [
+                dash.dcc.Store(id='investment-raw-data'),
                 dash.html.Div(
-                    [dash.dcc.Graph(id='piechart-CounyryPlatformOriginator', figure=figures.blank())],
-                    className="pure-u-lg-1-2 pure-u-sm-1",
+                    [
+                        dash.html.H1(
+                            'P2P-LENDING',
+                            style={'color':'#4b4b4b'},
+                        ),
+                        dash.html.H2(
+                            'Monthly Report',
+                        )
+                    ],
+                    className='header',
                     style={
-                        'height': 'fit-content',
+                        'border-bottom': '1px solid #eee',
+                        'text-align': 'center'
                         },
-                ),
+                    ),
                 dash.html.Div(
-                    [dash.dcc.Graph(id='table-DataByCountry', figure=figures.blank())],
-                    className="pure-u-lg-1-2 pure-u-sm-1",
-                    style={
-                        'height': 'fit-content',
-                        'text-align': 'center',
-                        },
-                ),
+                    [
+                        dash.dcc.Upload(
+                            id='datatable-upload',
+                            children=dash.html.Div(
+                                [
+                                    dash.html.A('Drop/Upload Files')
+                                ]),
+                            style={
+                                'width': '100%',
+                                'height': '60px',
+                                'textAlign': 'center',
+                                'lineHeight': '60px',
+                                'margin': '10px',
+                                'box-shadow': 'rgba(3, 102, 214, 0.3) 0px 0px 0px 3px',
+                                },
+                            multiple=True
+                        ),
+                        dash.dash_table.DataTable(id='datatable-upload-container'),
+                    ],
+                    ),
+                dash.html.Div(
+                    [
+                        dash.html.Div(
+                            [
+                                dash.dcc.Graph(
+                                    id='piechart-CounyryPlatformOriginator',
+                                    figure=figures.blank(),
+                                    style={
+                                        'height': '40vh',
+                                    }
+                                )
+                            ],
+                            className="col-sm border",
+                            style={
+                                'height': 'fit-content',
+                                'text-align': 'center',
+                                'margin': '10px',
+                                'box-shadow': 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
+                                },
+                        ),
+                        dash.html.Div(
+                            [
+                                dash.dcc.Graph(
+                                    id='table-DataByCountry',
+                                    figure=figures.blank(),
+                                    style={
+                                        'height': '40vh',
+                                    }
+                                )
+                            ],
+                            className="col-sm border",
+                            style={
+                                'height': 'fit-content',
+                                'text-align': 'center',
+                                'margin': '10px',
+                                'box-shadow': 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
+                                },
+                        ),
+                    ],
+                    className="row",
+                    ),
+                dash.html.Div(
+                    [
+                        dash.html.Div(
+                            [
+                                dash.dcc.Graph(
+                                    id='piechart-PlatformOriginator',
+                                    figure=figures.blank(),
+                                    style={
+                                        'height': '40vh',
+                                    }
+                                )
+                            ],
+                            className="col-sm border",
+                            style={
+                                'height': 'fit-content',
+                                'text-align': 'center',
+                                'margin': '10px',
+                                'box-shadow': 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
+                                },
+                        ),
+                        dash.html.Div(
+                            [
+                                dash.dcc.Graph(
+                                    id='table-DataByPlatform',
+                                    figure=figures.blank(),
+                                    style={
+                                        'height': '40vh',
+                                    }
+                                )
+                            ],
+                            className="col-sm border",
+                            style={
+                                'text-align': 'center',
+                                'margin': '10px',
+                                'box-shadow': 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
+                                },
+                        ),
+                    ],
+                    className="row",
+                    ),
+                dash.html.Div(
+                    [
+                        dash.html.Div(
+                            [
+                                dash.dcc.Graph(
+                                    id='table-AllRawData',
+                                    figure=figures.blank(),
+                                    style={
+                                        'height': '40vh',
+                                    }
+                                )
+                            ],
+                            className="col border",
+                            style={
+                                'text-align': 'center',
+                                'margin': '10px',
+                                'box-shadow': 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
+                                },
+                        ),
+                    ],
+                    className="row",
+                    ),
             ],
-            className="pure-g",
+            className="container",
             style={
-                'border-bottom': '1px solid #eee',
-                'text-align': 'center',
-                'padding': '10px',
+                'max-width': '960px',
+                'margin-left': 'auto',
+                'margin-right': 'auto',
+                'margin-bot': 'auto',
                 },
-            ),
-        dash.html.Div(
-            [
-                dash.html.Div(
-                    [dash.dcc.Graph(id='piechart-PlatformOriginator', figure=figures.blank())],
-                    className="pure-u-lg-1-2 pure-u-sm-1",
-                    style={
-                        'height': 'fit-content',
-                        },
-                ),
-                dash.html.Div(
-                    [dash.dcc.Graph(id='table-DataByPlatform', figure=figures.blank())],
-                    className="pure-u-lg-1-2 pure-u-sm-1",
-                    style={
-                        'height': 'fit-content',
-                        'text-align': 'center',
-                        },
-                ),
-            ],
-            className="pure-g",
-            style={
-                'border-bottom': '1px solid #eee',
-                'text-align': 'center',
-                'padding': '10px',
-                },
-            ),
-        dash.html.Div(
-            [dash.dcc.Graph(id='table-AllRawData', figure=figures.blank())],
-            className="pure-u-1"
-            ),
+        )
     ],
-    className="content",
+    className='container',
     style={
-        'max-width': '992px',
-        'margin-left': 'auto',
-        'margin-right': 'auto',
+        'min-width': '100%',
+        'min-height': '100%',
+        'width': '100%',
+        'height': '100%',
+        'margin': '0',
+        'padding': '0',
         },
 )
 
