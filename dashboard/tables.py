@@ -15,7 +15,10 @@ def table_AllRawData(investment_raw_data):
             align='left'
             )
         )
-    return plotly.graph_objects.Figure(data=table)
+    fig = plotly.graph_objects.Figure(data=table)
+    fig.update_layout(
+            margin=dict(l=15, r=15))
+    return fig
 
 
 def table_DataGrouped(investment_raw_data, group_by):
@@ -25,15 +28,20 @@ def table_DataGrouped(investment_raw_data, group_by):
         header=dict(
             values=list(data_grouped_by.columns),
             fill_color='paleturquoise',
-            align='left'
+            align=['left','right'],
             ),
         cells=dict(
             values=list(data_grouped_by.round(2).to_numpy().T),
             fill_color='lavender',
-            align='left'
-            )
+            align=['left','right'],
+            format=["",",.2f"],
+            suffix=["","€"],
+            ),
         )
-    return plotly.graph_objects.Figure(data=table)
+    fig = plotly.graph_objects.Figure(data=table)
+    fig.update_layout(
+        margin=dict(l=15, r=15))
+    return fig
 
 
 def table_DataByOriginator(investment_raw_data):

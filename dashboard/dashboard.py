@@ -154,7 +154,7 @@ app.layout = dash.html.Div(
                                     id='table-AllRawData',
                                     figure=figures.blank(),
                                     style={
-                                        'height': '50vh',
+                                        'height': '40vh',
                                     }
                                 )
                             ],

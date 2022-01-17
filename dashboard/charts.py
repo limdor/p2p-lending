@@ -16,7 +16,7 @@ def piechart(investment_raw_data, group_by):
         hovertemplate = "%{value:,.2f}€")
     fig.update_layout(
         grid=dict(columns=1, rows=1),
-        margin=dict(t=0, l=0, r=0, b=0))
+        margin=dict(t=5, l=5, r=5, b=5))
     return fig
 
 
