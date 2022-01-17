@@ -17,7 +17,7 @@ def table_AllRawData(investment_raw_data):
         )
     fig = plotly.graph_objects.Figure(data=table)
     fig.update_layout(
-            margin=dict(l=15, r=15))
+        margin=dict(t=15, l=15, r=15, b=15))
     return fig
 
 
@@ -40,7 +40,7 @@ def table_DataGrouped(investment_raw_data, group_by):
         )
     fig = plotly.graph_objects.Figure(data=table)
     fig.update_layout(
-        margin=dict(l=15, r=15))
+        margin=dict(t=15, l=15, r=15, b=15))
     return fig
 
 
