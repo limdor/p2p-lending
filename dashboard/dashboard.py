@@ -21,7 +21,7 @@ external_stylesheets = [
 ]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-app.css.config.serve_locally = True
+app.title = 'p2p-lending'
 
 app.layout = dash.html.Div(
     [
@@ -31,12 +31,9 @@ app.layout = dash.html.Div(
                 dash.html.Div(
                     [
                         dash.html.H1(
-                            'P2P-LENDING',
+                            'P2P-LENDING - Monthly Snapshot',
                             style={'color':'#4b4b4b'},
                         ),
-                        dash.html.H2(
-                            'Monthly Report',
-                        )
                     ],
                     className='header',
                     style={
@@ -54,9 +51,9 @@ app.layout = dash.html.Div(
                                 ]),
                             style={
                                 'width': '100%',
-                                'height': '60px',
+                                'height': '40px',
                                 'textAlign': 'center',
-                                'lineHeight': '60px',
+                                'lineHeight': '40px',
                                 'margin': '10px',
                                 'box-shadow': 'rgba(3, 102, 214, 0.3) 0px 0px 0px 3px',
                                 },
