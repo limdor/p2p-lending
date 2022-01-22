@@ -15,7 +15,7 @@ def generate_report_per_date(df_investiments):
     return diversification_report_per_date
 
 
-def generate_report(report_id, investment_raw_data,):
+def generate_report(report_id, investment_raw_data):
     diversification_report = {}
     diversification_report['reportId'] = report_id
     diversification_report['RawDataHash'] = calculator.get_raw_data_hash(investment_raw_data)

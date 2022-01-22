@@ -8,7 +8,7 @@ from reports import overall
 from logger import logger
 from datacollection import datacollection
 
-RELEVANT_COLUMNS = [marketplace.COUNTRY, marketplace.LOAN_ORIGINATOR, marketplace.OUTSTANDING_PRINCIPAL]
+RELEVANT_COLUMNS = [marketplace.COUNTRY, marketplace.LOAN_ORIGINATOR, marketplace.OUTSTANDING_PRINCIPAL, marketplace.INTEREST_RATE]
 DATA_DIRECTORY = os.path.join('.', 'data')
 
 
@@ -83,9 +83,11 @@ def main(show_past_investments):
                     (df_investments[marketplace.INVESTMENT_PLATFORM] == investment_platform.name)]
                 logger.info('Investments by country:')
                 df_group_by_country = df_group_by_date_platform.groupby([marketplace.COUNTRY]).sum()
+                df_group_by_country = df_group_by_country[[marketplace.OUTSTANDING_PRINCIPAL]]
                 logger.info(df_group_by_country.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False))
                 logger.info('Investments by loan originator:')
                 df_group_by_originator = df_group_by_date_platform.groupby([marketplace.LOAN_ORIGINATOR]).sum()
+                df_group_by_originator = df_group_by_originator[[marketplace.OUTSTANDING_PRINCIPAL]]
                 logger.info(df_group_by_originator.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False))
 
     overall_report = overall.generate_report_per_date(df_investments)

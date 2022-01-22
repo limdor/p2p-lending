@@ -22,6 +22,7 @@ def generate_report(investment_raw_data):
     overall_report['NumberLoanParts'] = calculator.get_number_loan_parts(investment_raw_data)
     overall_report['DataByCountry'] = calculator.get_percentage_investment_by_country(investment_raw_data)
     overall_report['DataByLoanOriginator'] = calculator.get_percentage_investment_by_originator(investment_raw_data)
+    overall_report['EstimatedMonthlyIncome'] = calculator.get_passive_income(investment_raw_data)
 
     return overall_report
 
@@ -38,3 +39,4 @@ def print_report_per_date(overall_report):
         logger.info(overall_data['DataByCountry'])
         logger.info("|- Investment by Loan Originator")
         logger.info(overall_data['DataByLoanOriginator'])
+        logger.info(f"|- Estimated monthly passive income: {overall_data['EstimatedMonthlyIncome']:.2f}€")
