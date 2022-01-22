@@ -3,7 +3,7 @@ from marketplace import marketplace
 
 META_DATA = marketplace.Marketplace(
     name='iuvo',
-    filename_regexp=re.compile(r'MyInvestments-(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2}).xlsx'),
+    filename_regexp=re.compile(r'[Mm]y_*[Ii]nvestments[-_](page_)*(?P<year>\d{4})(?P<month>\d{2})(?P<day>\d{2})(-\d*)*.xlsx'),
     display_name='IUVO',
     column_mapping={
         'Country': marketplace.COUNTRY,
