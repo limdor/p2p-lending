@@ -4,6 +4,7 @@ import datetime
 import dash
 import pandas
 import charts
+import components
 import figures
 from marketplace import iuvo
 from marketplace import mintos
@@ -13,10 +14,10 @@ import tables
 
 external_stylesheets = [
     {
-        'href': 'https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css',
+        'href': 'https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css',
         'rel': 'stylesheet',
-        'integrity': 'sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO',
-        'crossorigin': "anonymous"
+        'integrity': 'sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC',
+        'crossorigin': 'anonymous'
     }
 ]
 
@@ -64,106 +65,23 @@ app.layout = dash.html.Div(
                     ),
                 dash.html.Div(
                     [
-                        dash.html.Div(
-                            [
-                                dash.dcc.Graph(
-                                    id='piechart-CounyryPlatformOriginator',
-                                    figure=figures.blank(),
-                                    style={
-                                        'height': '40vh',
-                                    }
-                                )
-                            ],
-                            className="col-sm border",
-                            style={
-                                'height': 'fit-content',
-                                'text-align': 'center',
-                                'margin': '10px',
-                                'box-shadow': 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
-                                },
-                        ),
-                        dash.html.Div(
-                            [
-                                dash.dcc.Graph(
-                                    id='table-DataByCountry',
-                                    figure=figures.blank(),
-                                    style={
-                                        'height': '40vh',
-                                    }
-                                )
-                            ],
-                            className="col-sm border",
-                            style={
-                                'height': 'fit-content',
-                                'text-align': 'center',
-                                'margin': '10px',
-                                'box-shadow': 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
-                                },
-                        ),
+                        components.add_figure_card('piechart-CounyryPlatformOriginator'),
+                        components.add_figure_card('table-DataByCountry'),
                     ],
-                    className="row",
+                    className="row row-cols-1 row-cols-md-2 row-cols-lg-2",
                     ),
                 dash.html.Div(
                     [
-                        dash.html.Div(
-                            [
-                                dash.dcc.Graph(
-                                    id='piechart-PlatformOriginator',
-                                    figure=figures.blank(),
-                                    style={
-                                        'height': '40vh',
-                                    }
-                                )
-                            ],
-                            className="col-sm border",
-                            style={
-                                'height': 'fit-content',
-                                'text-align': 'center',
-                                'margin': '10px',
-                                'box-shadow': 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
-                                },
-                        ),
-                        dash.html.Div(
-                            [
-                                dash.dcc.Graph(
-                                    id='table-DataByPlatform',
-                                    figure=figures.blank(),
-                                    style={
-                                        'height': '40vh',
-                                    }
-                                )
-                            ],
-                            className="col-sm border",
-                            style={
-                                'text-align': 'center',
-                                'margin': '10px',
-                                'box-shadow': 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
-                                },
-                        ),
+                        components.add_figure_card('piechart-PlatformOriginator'),
+                        components.add_figure_card('table-DataByPlatform'),
                     ],
-                    className="row",
+                    className="row row-cols-1 row-cols-md-2 row-cols-lg-2",
                     ),
                 dash.html.Div(
                     [
-                        dash.html.Div(
-                            [
-                                dash.dcc.Graph(
-                                    id='table-AllRawData',
-                                    figure=figures.blank(),
-                                    style={
-                                        'height': '40vh',
-                                    }
-                                )
-                            ],
-                            className="col border",
-                            style={
-                                'text-align': 'center',
-                                'margin': '10px',
-                                'box-shadow': 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
-                                },
-                        ),
+                        components.add_figure_card('table-AllRawData')
                     ],
-                    className="row",
+                    className="row row-cols-1",
                     ),
             ],
             className="container",
