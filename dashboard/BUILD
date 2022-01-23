@@ -42,3 +42,13 @@ py_library(
     ],
     visibility = ["//visibility:public"],
 )
+
+py_library(
+    name = "components",
+    srcs = ["components.py"],
+    deps = [
+        requirement("dash"),
+        ":figures",
+    ],
+    visibility = ["//visibility:public"],
+)
