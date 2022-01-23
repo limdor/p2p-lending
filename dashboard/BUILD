@@ -6,6 +6,8 @@ py_binary(
     deps = [
         requirement("dash"),
         ":charts",
+        ":components",
+        ":tables",
         "//:p2p",
     ],
 )
@@ -37,6 +39,16 @@ py_library(
     srcs = ["figures.py"],
     deps = [
         requirement("plotly"),
+    ],
+    visibility = ["//visibility:public"],
+)
+
+py_library(
+    name = "components",
+    srcs = ["components.py"],
+    deps = [
+        requirement("dash"),
+        ":figures",
     ],
     visibility = ["//visibility:public"],
 )
