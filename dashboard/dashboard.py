@@ -95,6 +95,23 @@ def render_body(filename):
     return dash.dcc.Tabs(
             [
                 dash.dcc.Tab(
+                        label='Diversification Report',
+                        children=[
+                            dash.html.Div(
+                                [
+                                    
+                                ],
+                                className='row row-cols-1',
+                                ),
+                            ],
+                        style={
+                            'padding': '6px',
+                            },
+                        selected_style={
+                            'padding': '6px',
+                            }
+                        ),
+                dash.dcc.Tab(
                     label='Graphs & Tables',
                     children=[
                         dash.html.Div(
