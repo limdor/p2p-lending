@@ -6,7 +6,7 @@ py_binary(
     deps = [
         requirement("dash"),
         ":charts",
-        ":figures",
+        ":components",
         ":tables",
         "//:p2p",
     ],
