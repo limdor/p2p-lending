@@ -99,15 +99,15 @@ def render_body(filename):
                     children=[
                         dash.html.Div(
                             [
-                                components.add_figure_card_half_row('piechart-CounyryPlatformOriginator'),
-                                components.add_figure_card_half_row('table-DataByCountry'),
+                                components.figure_card_half_row('piechart-CounyryPlatformOriginator'),
+                                components.figure_card_half_row('table-DataByCountry'),
                             ],
                             className="row row-cols-1 row-cols-md-2 row-cols-lg-2",
                             ),
                         dash.html.Div(
                             [
-                                components.add_figure_card_half_row('piechart-PlatformOriginator'),
-                                components.add_figure_card_half_row('table-DataByPlatform'),
+                                components.figure_card_half_row('piechart-PlatformOriginator'),
+                                components.figure_card_half_row('table-DataByPlatform'),
                             ],
                             className="row row-cols-1 row-cols-md-2 row-cols-lg-2",
                             ),
@@ -124,7 +124,7 @@ def render_body(filename):
                     children=[
                         dash.html.Div(
                             [
-                                components.add_figure_card_full_row('table-AllRawData')
+                                components.figure_card_full_row('table-AllRawData')
                             ],
                             className="row row-cols-1",
                             ),
