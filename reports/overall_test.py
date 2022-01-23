@@ -1,17 +1,18 @@
 import datetime
 from io import StringIO
+import pytest
 import pandas
 from reports import overall
 
 def test_overall_generate_report_per_date():
     input_data = StringIO(
-        "Country,Loan originator,Outstanding principal,Investment platform,Date\n"\
-        "Poland,Sun Finance,50.0,mintos,2020-11-30\n"\
-        "Spain,Creamfinance,75.0,mintos,2020-11-30\n"\
-        "Poland,Creditstar,10.0,mintos,2020-11-30\n"\
-        "Spain,Creamfinance,75.0,mintos,2020-11-30\n"\
-        "Poland,Creditstar,15.0,mintos,2020-11-30\n"\
-        "Spain,Creditstar,15.0,mintos,2021-06-30\n"
+        "Country,Loan originator,Interest rate,Outstanding principal,Investment platform,Date\n"\
+        "Poland,Sun Finance,6,50.0,mintos,2020-11-30\n"\
+        "Spain,Creamfinance,12,75.0,mintos,2020-11-30\n"\
+        "Poland,Creditstar,3,10.0,mintos,2020-11-30\n"\
+        "Spain,Creamfinance,9,75.0,mintos,2020-11-30\n"\
+        "Poland,Creditstar,12,15.0,mintos,2020-11-30\n"\
+        "Spain,Creditstar,12,15.0,mintos,2021-06-30\n"
     )
     input_data_frame = pandas.read_csv(input_data, parse_dates=['Date'])
 
@@ -34,7 +35,8 @@ def test_overall_generate_report_per_date():
                 }
             }),
             'TotalInvestment': 225.0,
-            'NumberLoanParts': 5
+            'NumberLoanParts': 5,
+            'EstimatedMonthlyIncome': pytest.approx(1.7375, abs=1e-4),
         },
         datetime.date(2021, 6, 30): {
             'Data': input_data_frame[input_data_frame.index.isin([5])],
@@ -48,7 +50,8 @@ def test_overall_generate_report_per_date():
                 'Percentage': {'Creditstar': 1.000}
             }),
             'TotalInvestment': 15.0,
-            'NumberLoanParts': 1
+            'NumberLoanParts': 1,
+            'EstimatedMonthlyIncome': 0.15,
         }
     }
 

@@ -6,12 +6,12 @@ from reports import diversification
 
 def test_diversification_generate_report_per_date():
     input_data = StringIO(
-        "Country,Loan originator,Outstanding principal,Investment platform,Date\n"\
-        "Poland,Sun Finance,50.0,mintos,2020-11-30\n"\
-        "Spain,Creamfinance,75.0,mintos,2020-11-30\n"\
-        "Poland,Creditstar,10.0,mintos,2020-11-30\n"\
-        "Spain,Creamfinance,75.0,mintos,2020-11-30\n"\
-        "Poland,Creditstar,15.0,mintos,2020-11-30\n"\
+        "Country,Loan originator,Interest rate,Outstanding principal,Investment platform,Date\n"\
+        "Poland,Sun Finance,6,50.0,mintos,2020-11-30\n"\
+        "Spain,Creamfinance,12,75.0,mintos,2020-11-30\n"\
+        "Poland,Creditstar,3,10.0,mintos,2020-11-30\n"\
+        "Spain,Creamfinance,9,75.0,mintos,2020-11-30\n"\
+        "Poland,Creditstar,12,15.0,mintos,2020-11-30\n"\
     )
 
     input_data_frame = pandas.read_csv(input_data, parse_dates=['Date'])

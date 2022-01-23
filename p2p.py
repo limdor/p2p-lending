@@ -8,7 +8,7 @@ from reports import overall
 from logger import logger
 from datacollection import datacollection
 
-RELEVANT_COLUMNS = [marketplace.COUNTRY, marketplace.LOAN_ORIGINATOR, marketplace.OUTSTANDING_PRINCIPAL]
+RELEVANT_COLUMNS = [marketplace.COUNTRY, marketplace.LOAN_ORIGINATOR, marketplace.OUTSTANDING_PRINCIPAL, marketplace.INTEREST_RATE]
 DATA_DIRECTORY = os.path.join('.', 'data')
 
 
@@ -17,8 +17,8 @@ def aggregate_investment_data(investment_files):
     for investment_platform, files in investment_files.items():
         for date, file_path in sorted(files.items(), key=lambda item: item[0]):
             list_dataframes.append(get_dataframe_from_excel(file_path, date, investment_platform))
-    df_investiments = pandas.concat(list_dataframes)
-    return df_investiments
+    df_investments = pandas.concat(list_dataframes)
+    return df_investments
 
 
 def get_dataframe_from_excel(file_path, date, investment_platform):
@@ -67,7 +67,7 @@ def main(show_past_investments):
     logger.info("**********************************")
     logger.info("**** Aggregate available data ****")
     logger.info("**********************************")
-    df_investiments = aggregate_investment_data(investment_files)
+    df_investments = aggregate_investment_data(investment_files)
     logger.info('TODO: function to summarise information')
 
     logger.info("*******************************")
@@ -78,18 +78,20 @@ def main(show_past_investments):
         logger.info(f" --- Platform : {investment_platform.display_name} ---")
         for date in sorted(files.keys()):
             if show_past_investments or date == latest_common_date:
-                df_group_by_date_platform = df_investiments[
-                    (df_investiments[marketplace.FILE_DATE] == pandas.Timestamp(date, unit='D')) &
-                    (df_investiments[marketplace.INVESTMENT_PLATFORM] == investment_platform.name)]
+                df_group_by_date_platform = df_investments[
+                    (df_investments[marketplace.FILE_DATE] == pandas.Timestamp(date, unit='D')) &
+                    (df_investments[marketplace.INVESTMENT_PLATFORM] == investment_platform.name)]
                 logger.info('Investments by country:')
                 df_group_by_country = df_group_by_date_platform.groupby([marketplace.COUNTRY]).sum()
+                df_group_by_country = df_group_by_country[[marketplace.OUTSTANDING_PRINCIPAL]]
                 logger.info(df_group_by_country.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False))
                 logger.info('Investments by loan originator:')
                 df_group_by_originator = df_group_by_date_platform.groupby([marketplace.LOAN_ORIGINATOR]).sum()
+                df_group_by_originator = df_group_by_originator[[marketplace.OUTSTANDING_PRINCIPAL]]
                 logger.info(df_group_by_originator.sort_values(by=marketplace.OUTSTANDING_PRINCIPAL, ascending=False))
 
-    overall_report = overall.generate_report_per_date(df_investiments)
+    overall_report = overall.generate_report_per_date(df_investments)
     overall.print_report_per_date(overall_report)
 
-    diversification_report_per_date = diversification.generate_report_per_date(df_investiments)
+    diversification_report_per_date = diversification.generate_report_per_date(df_investments)
     diversification.print_report_per_date(diversification_report_per_date)
