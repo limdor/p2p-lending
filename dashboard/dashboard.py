@@ -5,6 +5,7 @@ import dash
 import pandas
 import charts
 import components
+import layouts
 from marketplace import iuvo
 from marketplace import mintos
 import p2p
@@ -56,7 +57,7 @@ app.layout = dash.html.Div(
                                     className='col border',
                                     style={
                                         'margin': '10px',
-                                        'height': '85vh',
+                                        'height': '80vh',
                                         'lineHeight': '80vh',
                                         'textAlign': 'center',
                                         'box-shadow': 'rgba(17, 17, 26, 0.05) 0px 1px 0px, rgba(17, 17, 26, 0.1) 0px 0px 8px',
@@ -94,6 +95,16 @@ def render_body(filename):
 
     return dash.dcc.Tabs(
             [
+                dash.dcc.Tab(
+                        id='report-diversification',
+                        label='Diversification Report',
+                        style={
+                            'padding': '6px',
+                            },
+                        selected_style={
+                            'padding': '6px',
+                            }
+                        ),
                 dash.dcc.Tab(
                     label='Graphs & Tables',
                     children=[
@@ -173,6 +184,7 @@ def update_output(list_of_contents, list_of_names):
               dash.dependencies.Output('piechart-CounyryPlatformOriginator', 'figure'),
               dash.dependencies.Output('table-DataByCountry', 'figure'),
               dash.dependencies.Output('table-AllRawData', 'figure'),
+              dash.dependencies.Output('report-diversification', 'children'),
               dash.dependencies.Input('investment-raw-data', 'data'),
               prevent_initial_call=True)
 def update_graphs(investment_raw_data):
@@ -182,7 +194,8 @@ def update_graphs(investment_raw_data):
     fig3 = charts.piechart_CountryOriginator(investment_raw_dataframe)
     fig4 = tables.table_DataByCountry(investment_raw_dataframe)
     fig5 = tables.table_AllRawData(investment_raw_dataframe)
-    return fig1, fig2, fig3, fig4, fig5
+    layout1 = layouts.DiversificationReport(investment_raw_dataframe)
+    return fig1, fig2, fig3, fig4, fig5, layout1
 
 
 if __name__ == '__main__':

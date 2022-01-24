@@ -24,6 +24,15 @@ py_library(
 )
 
 py_library(
+    name = "layouts",
+    srcs = ["layouts.py"],
+    deps = [
+        requirement("dash"),
+    ],
+    visibility = ["//visibility:public"],
+)
+
+py_library(
     name = "tables",
     srcs = ["tables.py"],
     deps = [
