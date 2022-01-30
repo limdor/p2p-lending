@@ -96,6 +96,16 @@ def render_body(filename):
     return dash.dcc.Tabs(
             [
                 dash.dcc.Tab(
+                        id='report-overall',
+                        label='Overall Report',
+                        style={
+                            'padding': '6px',
+                            },
+                        selected_style={
+                            'padding': '6px',
+                            }
+                        ),
+                dash.dcc.Tab(
                         id='report-diversification',
                         label='Diversification Report',
                         style={
@@ -185,6 +195,7 @@ def update_output(list_of_contents, list_of_names):
               dash.dependencies.Output('table-DataByCountry', 'figure'),
               dash.dependencies.Output('table-AllRawData', 'figure'),
               dash.dependencies.Output('report-diversification', 'children'),
+              dash.dependencies.Output('report-overall', 'children'),
               dash.dependencies.Input('investment-raw-data', 'data'),
               prevent_initial_call=True)
 def update_graphs(investment_raw_data):
@@ -195,7 +206,8 @@ def update_graphs(investment_raw_data):
     fig4 = tables.table_DataByCountry(investment_raw_dataframe)
     fig5 = tables.table_AllRawData(investment_raw_dataframe)
     layout1 = layouts.DiversificationReport(investment_raw_dataframe)
-    return fig1, fig2, fig3, fig4, fig5, layout1
+    layout2 = layouts.OverallReport(investment_raw_dataframe)
+    return fig1, fig2, fig3, fig4, fig5, layout1, layout2
 
 
 if __name__ == '__main__':
