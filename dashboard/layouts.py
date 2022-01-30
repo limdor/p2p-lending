@@ -1,5 +1,5 @@
 import dash
-from reports import diversification
+from reports import diversification, overall
 
 
 def conditionalDiv(level_success, text_to_display):
@@ -28,6 +28,25 @@ def conditionalDiv(level_success, text_to_display):
     )
 
 
+def infoDiv(text_to_display):
+    return dash.html.Div(
+        [
+            dash.html.P(
+                text_to_display,
+                className='text-center',
+                style={
+                    'lineHeight': '8vh',
+                },
+            )
+        ],
+        className='row alert-info border',
+        style={
+            'height': 'fit-content',
+            'margin': '10px',
+        }
+    )
+
+
 def percentageToSuccessLevel(value, threshold):
     return (1 - ((value - threshold)/(100 - threshold)))
 
@@ -45,6 +64,22 @@ def DiversificationReport(investment_raw_dataframe):
                            f"No more than 50% of loans are issued by 5 (or less) lending companies: {report['originatorStatistics']['investmentFiveOriginators']:.2f}%"),
             conditionalDiv(percentageToSuccessLevel(report['originatorStatistics']['investmentOneOriginator'], 20),
                            f"No more than 20% of loans are issued by any single lending company: {report['originatorStatistics']['investmentOneOriginator']:.2f}%"),
+        ],
+        className='container',
+        style={
+            'height': 'fit-content',
+            'padding': '10px'
+        }
+    )
+
+
+def OverallReport(investment_raw_dataframe):
+    report = overall.generate_report(investment_raw_dataframe)
+    return dash.html.Div(
+        [
+            infoDiv(f"Number of loan parts: {report['NumberLoanParts']:d}"),
+            infoDiv(f"Total invested amount: {report['TotalInvestment']:.2f}€"),
+            infoDiv(f"Estimated monthly income: {report['EstimatedMonthlyIncome']:.2f}€"),
         ],
         className='container',
         style={
