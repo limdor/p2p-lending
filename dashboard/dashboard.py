@@ -96,14 +96,7 @@ def render_body(filename):
 
     return dash.html.Div(
             [
-                dash.html.P(
-                    id='text-date',
-                    style={
-                        'color':'#4b4b4b',
-                        'height': '3vh',
-                        'lineHeight': '3vh',
-                        },
-                ),
+                dash.html.Div(id='text-date'),
                 dash.dcc.Tabs(
                 [
                     dash.dcc.Tab(
@@ -156,7 +149,7 @@ def render_body(filename):
                         children=[
                             dash.html.Div(
                                 [
-                                    components.figure_card_full_row('table-AllRawData')
+                                    components.figure_card_full_row('table-AllRawData'),
                                 ],
                                 className="row row-cols-1",
                                 ),
@@ -178,7 +171,7 @@ def render_body(filename):
             style = {
                 'textAlign': 'center',
             }
-            ),
+            )
 
 
 @app.callback(dash.dependencies.Output('investment-raw-data', 'data'),
@@ -218,7 +211,7 @@ def update_output(list_of_contents, list_of_names):
               prevent_initial_call=True)
 def update_graphs(investment_raw_data):
     investment_raw_dataframe = pandas.read_json(investment_raw_data, orient='split')
-    date = investment_raw_dataframe[marketplace.FILE_DATE].unique()
+    date = layouts.DateReport(investment_raw_dataframe)
     fig1 = charts.piechart_OriginatorCountry(investment_raw_dataframe)
     fig2 = tables.table_DataByOriginator(investment_raw_dataframe)
     fig3 = charts.piechart_CountryOriginator(investment_raw_dataframe)
