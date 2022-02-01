@@ -2,7 +2,9 @@ import plotly.graph_objects
 from marketplace import marketplace
 
 
-def table_RawData(investment_raw_data, columns_excluded=[]):
+def table_RawData(investment_raw_data, columns_excluded=None):
+    if not columns_excluded:
+        columns_excluded = []
     filtered_data = investment_raw_data.drop(columns_excluded, axis=1)
     table = plotly.graph_objects.Table(
         header=dict(
