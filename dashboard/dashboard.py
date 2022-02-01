@@ -7,6 +7,7 @@ import charts
 import components
 import layouts
 from marketplace import iuvo
+from marketplace import marketplace
 from marketplace import mintos
 import p2p
 import tables
@@ -204,7 +205,7 @@ def update_graphs(investment_raw_data):
     fig2 = tables.table_DataByOriginator(investment_raw_dataframe)
     fig3 = charts.piechart_CountryOriginator(investment_raw_dataframe)
     fig4 = tables.table_DataByCountry(investment_raw_dataframe)
-    fig5 = tables.table_AllRawData(investment_raw_dataframe)
+    fig5 = tables.table_RawData(investment_raw_dataframe,columns_excluded=[marketplace.FILE_DATE])
     layout1 = layouts.DiversificationReport(investment_raw_dataframe)
     layout2 = layouts.OverallReport(investment_raw_dataframe)
     return fig1, fig2, fig3, fig4, fig5, layout1, layout2
