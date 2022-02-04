@@ -2,15 +2,18 @@ import plotly.graph_objects
 from marketplace import marketplace
 
 
-def table_AllRawData(investment_raw_data):
+def table_RawData(investment_raw_data, columns_excluded=None):
+    if not columns_excluded:
+        columns_excluded = []
+    filtered_data = investment_raw_data.drop(columns_excluded, axis=1)
     table = plotly.graph_objects.Table(
         header=dict(
-            values=list(investment_raw_data.columns),
+            values=list(filtered_data.columns),
             fill_color='paleturquoise',
             align='left'
             ),
         cells=dict(
-            values=list(investment_raw_data.to_numpy().T),
+            values=list(filtered_data.to_numpy().T),
             fill_color='lavender',
             align='left'
             )

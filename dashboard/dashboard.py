@@ -7,6 +7,7 @@ import charts
 import components
 import layouts
 from marketplace import iuvo
+from marketplace import marketplace
 from marketplace import mintos
 import p2p
 import tables
@@ -33,11 +34,11 @@ app.layout = dash.html.Div(
                 dash.html.Div(
                     [
                         dash.html.H1(
-                            'P2P-LENDING',
+                            children='P2P-LENDING',
                             style={
                                 'color':'#4b4b4b',
-                                'height': '10vh',
-                                'lineHeight': '10vh',
+                                'height': '7vh',
+                                'lineHeight': '7vh',
                                 },
                         ),
                     ],
@@ -93,11 +94,49 @@ def render_body(filename):
     if filename is None:
         raise dash.exceptions.PreventUpdate
 
-    return dash.dcc.Tabs(
+    return dash.html.Div(
             [
-                dash.dcc.Tab(
-                        id='report-overall',
-                        label='Overall Report',
+                dash.html.Div(id='text-date'),
+                dash.dcc.Tabs(
+                [
+                    dash.dcc.Tab(
+                            id='report-overall',
+                            label='Overall Report',
+                            style={
+                                'padding': '6px',
+                                },
+                            selected_style={
+                                'padding': '6px',
+                                }
+                            ),
+                    dash.dcc.Tab(
+                            id='report-diversification',
+                            label='Diversification Report',
+                            style={
+                                'padding': '6px',
+                                },
+                            selected_style={
+                                'padding': '6px',
+                                }
+                            ),
+                    dash.dcc.Tab(
+                        label='Graphs & Tables',
+                        children=[
+                            dash.html.Div(
+                                [
+                                    components.figure_card_half_row('piechart-CounyryPlatformOriginator'),
+                                    components.figure_card_half_row('table-DataByCountry'),
+                                ],
+                                className="row row-cols-1 row-cols-md-2 row-cols-lg-2",
+                                ),
+                            dash.html.Div(
+                                [
+                                    components.figure_card_half_row('piechart-PlatformOriginator'),
+                                    components.figure_card_half_row('table-DataByPlatform'),
+                                ],
+                                className="row row-cols-1 row-cols-md-2 row-cols-lg-2",
+                                ),
+                            ],
                         style={
                             'padding': '6px',
                             },
@@ -105,62 +144,33 @@ def render_body(filename):
                             'padding': '6px',
                             }
                         ),
-                dash.dcc.Tab(
-                        id='report-diversification',
-                        label='Diversification Report',
+                    dash.dcc.Tab(
+                        label='Raw Data',
+                        children=[
+                            dash.html.Div(
+                                [
+                                    components.figure_card_full_row('table-AllRawData'),
+                                ],
+                                className="row row-cols-1",
+                                ),
+                            ],
                         style={
                             'padding': '6px',
                             },
                         selected_style={
                             'padding': '6px',
                             }
-                        ),
-                dash.dcc.Tab(
-                    label='Graphs & Tables',
-                    children=[
-                        dash.html.Div(
-                            [
-                                components.figure_card_half_row('piechart-CounyryPlatformOriginator'),
-                                components.figure_card_half_row('table-DataByCountry'),
-                            ],
-                            className="row row-cols-1 row-cols-md-2 row-cols-lg-2",
-                            ),
-                        dash.html.Div(
-                            [
-                                components.figure_card_half_row('piechart-PlatformOriginator'),
-                                components.figure_card_half_row('table-DataByPlatform'),
-                            ],
-                            className="row row-cols-1 row-cols-md-2 row-cols-lg-2",
-                            ),
-                        ],
-                    style={
-                        'padding': '6px',
-                        },
-                    selected_style={
-                        'padding': '6px',
-                        }
-                    ),
-                dash.dcc.Tab(
-                    label='Raw Data',
-                    children=[
-                        dash.html.Div(
-                            [
-                                components.figure_card_full_row('table-AllRawData')
-                            ],
-                            className="row row-cols-1",
-                            ),
-                        ],
-                    style={
-                        'padding': '6px',
-                        },
-                    selected_style={
-                        'padding': '6px',
-                        }
-                    )
+                        )
+                ],
+                style={
+                    'height': 'fit-content',
+                    }
+                )
             ],
-            style={
-                'height': 'fit-content',
-                }
+            className='container',
+            style = {
+                'textAlign': 'center',
+            }
             )
 
 
@@ -189,7 +199,8 @@ def update_output(list_of_contents, list_of_names):
     return investment_raw_data.to_json(orient='split')
 
 
-@app.callback(dash.dependencies.Output('piechart-PlatformOriginator', 'figure'),
+@app.callback(dash.dependencies.Output('text-date', 'children'),
+              dash.dependencies.Output('piechart-PlatformOriginator', 'figure'),
               dash.dependencies.Output('table-DataByPlatform', 'figure'),
               dash.dependencies.Output('piechart-CounyryPlatformOriginator', 'figure'),
               dash.dependencies.Output('table-DataByCountry', 'figure'),
@@ -200,14 +211,15 @@ def update_output(list_of_contents, list_of_names):
               prevent_initial_call=True)
 def update_graphs(investment_raw_data):
     investment_raw_dataframe = pandas.read_json(investment_raw_data, orient='split')
+    date = layouts.DateReport(investment_raw_dataframe)
     fig1 = charts.piechart_OriginatorCountry(investment_raw_dataframe)
     fig2 = tables.table_DataByOriginator(investment_raw_dataframe)
     fig3 = charts.piechart_CountryOriginator(investment_raw_dataframe)
     fig4 = tables.table_DataByCountry(investment_raw_dataframe)
-    fig5 = tables.table_AllRawData(investment_raw_dataframe)
+    fig5 = tables.table_RawData(investment_raw_dataframe,columns_excluded=[marketplace.FILE_DATE])
     layout1 = layouts.DiversificationReport(investment_raw_dataframe)
     layout2 = layouts.OverallReport(investment_raw_dataframe)
-    return fig1, fig2, fig3, fig4, fig5, layout1, layout2
+    return date, fig1, fig2, fig3, fig4, fig5, layout1, layout2
 
 
 if __name__ == '__main__':

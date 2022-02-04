@@ -28,6 +28,7 @@ py_library(
     srcs = ["layouts.py"],
     deps = [
         requirement("dash"),
+        "//reports",
     ],
     visibility = ["//visibility:public"],
 )

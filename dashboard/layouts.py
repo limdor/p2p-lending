@@ -1,5 +1,5 @@
 import dash
-from reports import diversification, overall
+from reports import calculator, diversification, overall
 
 
 def conditionalDiv(level_success, text_to_display):
@@ -87,3 +87,15 @@ def OverallReport(investment_raw_dataframe):
             'padding': '10px'
         }
     )
+
+def DateReport(investment_raw_dataframe):
+    unformated_date = calculator.string_unique_dates(investment_raw_dataframe)
+    formated_date = unformated_date
+    return dash.html.P(
+                children=formated_date,
+                style={
+                    'color':'#4b4b4b',
+                    'height': '3vh',
+                    'lineHeight': '3vh',
+                    },
+            )
