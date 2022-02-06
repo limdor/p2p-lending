@@ -6,3 +6,6 @@ __pycache__/
 
 # Investment files
 data/**/*.xlsx
+
+# Python
+venv/
