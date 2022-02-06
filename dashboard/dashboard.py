@@ -1,16 +1,20 @@
 import base64
 import io
 import datetime
+
 import dash
 import pandas
+
 import charts
 import components
 import layouts
+import tables
+
 from marketplace import iuvo
 from marketplace import marketplace
 from marketplace import mintos
+
 import p2p
-import tables
 
 
 external_stylesheets = [
