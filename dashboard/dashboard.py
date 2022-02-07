@@ -1,16 +1,20 @@
 import base64
 import io
 import datetime
+
 import dash
 import pandas
+
 import charts
 import components
 import layouts
+import tables
+
 from marketplace import iuvo
 from marketplace import marketplace
 from marketplace import mintos
+
 import p2p
-import tables
 
 
 external_stylesheets = [
@@ -23,6 +27,7 @@ external_stylesheets = [
 ]
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+server = app.server
 app.title = 'p2p-lending'
 app.config.suppress_callback_exceptions = True
 
@@ -223,4 +228,4 @@ def update_graphs(investment_raw_data):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(host='0.0.0.0', port=8080, debug=False)

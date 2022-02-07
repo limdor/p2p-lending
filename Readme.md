@@ -33,3 +33,43 @@ To run the test you just need to run the following command:
 ```bash
 bazel test //...
 ```
+
+## Deploy
+
+To deploy the application to google cloud you only have to follow the instructions in this page:
+<https://datasciencecampus.github.io/deploy-dash-with-gcp/>
+
+Currently the deployment is not fully automated, there are two parts that needs to be modified:
+
+* The logging to file needs to be commented out because in the server we cannot write to file
+* Some of the imports needs to be changed because in the server is not run with Bazel
+
+In file dashboard/components.py:
+
+```py
+import figures
+```
+
+for
+
+```py
+from dashboard import figures
+```
+
+In file dashboard/dashboard.py:
+
+```py
+import charts
+import components
+import layouts
+import tables
+```
+
+for
+
+```py
+from dashboard import charts
+from dashboard import components
+from dashboard import layouts
+from dashboard import tables
+```
